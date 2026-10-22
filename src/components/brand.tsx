@@ -12,12 +12,7 @@ export function Brand() {
       <span className="flex size-8 items-center justify-center rounded-lg bg-foreground text-background">
         <Layers2 className="size-4" aria-hidden="true" />
       </span>
-      <span>
-        {siteConfig.name}
-        <span className="ml-2 font-normal text-muted-foreground">
-          / starter
-        </span>
-      </span>
+      <span>{siteConfig.name}</span>
     </Link>
   );
 }

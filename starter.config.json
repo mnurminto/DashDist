@@ -1,7 +1,7 @@
 {
-  "id": "postgres",
-  "name": "Base Postgres",
-  "description": "An AI-friendly foundation with Drizzle and PostgreSQL.",
+  "id": "dashdist",
+  "name": "Dashboard Distribusi Baznas",
+  "description": "Dashboard sebaran bantuan Baznas Bazis Provinsi DKI Jakarta.",
   "baseVersion": "0.1.0",
   "database": "postgresql"
 }

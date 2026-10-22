@@ -2,24 +2,9 @@
 
 import { useMemo, useRef, useState } from "react";
 import { cn } from "cn";
-import { GEO, KECAMATAN } from "@/lib/dashboard/mock-data";
+import { GEO, KECAMATAN, SKALA } from "@/lib/dashboard/mock-data";
 import { formatAngka, formatRupiah } from "@/lib/dashboard/format";
-
-/**
- * Enam tingkat warna: makin gelap, makin besar dana yang tersalurkan.
- * Skala dibuat dari warna utama template supaya tetap satu keluarga.
- */
-const TINGKAT_WARNA = [
-  "#fbeee9",
-  "#f6d5c8",
-  "#eeb49e",
-  "#e08a6c",
-  "#c25f42",
-  "#8d3a26",
-] as const;
-
-/** Batas kelas (persentil) untuk menentukan tingkat warna. */
-const BATAS_PERSENTIL = [0.18, 0.36, 0.56, 0.76, 0.9] as const;
+import { TINGKAT_WARNA } from "@/lib/dashboard/skala-warna";
 
 type Sorot = { kode: string; x: number; y: number };
 
@@ -33,25 +18,10 @@ export function JakartaMap({ aktif, className }: Props) {
   const wadah = useRef<HTMLDivElement>(null);
   const [sorot, setSorot] = useState<Sorot | null>(null);
 
-  const { dataByCode, tingkatDana } = useMemo(() => {
-    const map = new Map(
-      KECAMATAN.map((kecamatan) => [kecamatan.code, kecamatan]),
-    );
-    const urut = KECAMATAN.map((kecamatan) => kecamatan.dana).sort(
-      (a, b) => a - b,
-    );
-    const batas = BATAS_PERSENTIL.map(
-      (persen) => urut[Math.min(Math.floor(persen * urut.length), urut.length - 1)],
-    );
-    const tingkat = (dana: number) => {
-      let hasil = 0;
-      batas.forEach((nilai, i) => {
-        if (dana >= nilai) hasil = i + 1;
-      });
-      return Math.min(hasil, TINGKAT_WARNA.length - 1);
-    };
-    return { dataByCode: map, tingkatDana: tingkat };
-  }, []);
+  const dataByCode = useMemo(
+    () => new Map(KECAMATAN.map((kecamatan) => [kecamatan.code, kecamatan])),
+    [],
+  );
 
   const sedangAktif = sorot?.kode ?? aktif ?? null;
   const info = sorot ? dataByCode.get(sorot.kode) : null;
@@ -74,7 +44,7 @@ export function JakartaMap({ aktif, className }: Props) {
     if (!data) return null;
     const disorot = sedangAktif === kode;
     const label = `${data.nama}, ${data.kota}: ${formatRupiah(data.dana)} untuk ${formatAngka(data.penerima)} penerima`;
-    const tingkat = Math.max(tingkatDana(data.dana), opsi?.tingkatMinimum ?? 0);
+    const tingkat = Math.max(SKALA.tingkat(data.dana), opsi?.tingkatMinimum ?? 0);
 
     return (
       <path

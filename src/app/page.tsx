@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Brand } from "@/components/brand";
 import { JakartaMap } from "@/components/dashboard/jakarta-map";
+import { PetaLegenda } from "@/components/dashboard/peta-legenda";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -62,6 +63,7 @@ export default function DashboardPage() {
           <CardContent className="pb-6">
             <JakartaMap />
           </CardContent>
+          <PetaLegenda />
         </Card>
 
         <p className="mt-3 text-xs text-muted-foreground">

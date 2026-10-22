@@ -1,4 +1,5 @@
 import geo from "./jakarta-geo.json";
+import { buatSkala } from "./skala-warna";
 
 /**
  * Data contoh (mock) untuk dashboard.
@@ -148,3 +149,6 @@ export const TERAKHIR_DIPERBARUI = "2026-10-20T03:15:00.000Z";
 
 /** Data batas wilayah yang sudah diproyeksikan ke koordinat SVG. */
 export const GEO = geo;
+
+/** Skala warna dipakai bersama oleh peta dan legenda. */
+export const SKALA = buatSkala(KECAMATAN.map((kecamatan) => kecamatan.dana));

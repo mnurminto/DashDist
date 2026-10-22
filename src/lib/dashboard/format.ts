@@ -27,6 +27,22 @@ export function formatRupiah(value: number): string {
   return `Rp ${formatAngka(value)}`;
 }
 
+/** 1250000000 -> "Rp 1,3 M"; 640000000 -> "Rp 640 jt" (untuk legenda yang sempit). */
+export function formatRupiahRingkas(value: number): string {
+  if (value >= 1_000_000_000_000) {
+    return `Rp ${Math.round(value / 1_000_000_000_000)} T`;
+  }
+  if (value >= 1_000_000_000) {
+    return `Rp ${(value / 1_000_000_000).toLocaleString("id-ID", {
+      maximumFractionDigits: 1,
+    })} M`;
+  }
+  if (value >= 1_000_000) {
+    return `Rp ${Math.round(value / 1_000_000).toLocaleString("id-ID")} jt`;
+  }
+  return `Rp ${formatAngka(value)}`;
+}
+
 /** ISO date -> "20 Okt 2026, 10.15" */
 export function formatWaktu(iso: string): string {
   const date = new Date(iso);

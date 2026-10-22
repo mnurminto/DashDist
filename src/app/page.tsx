@@ -48,9 +48,7 @@ export default function DashboardPage() {
         <Card className="mt-8 gap-4 overflow-hidden py-0">
           <CardHeader className="gap-1 border-b py-5">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <CardTitle className="text-base">
-                Sebaran per kecamatan
-              </CardTitle>
+              <CardTitle className="text-base">Sebaran per kecamatan</CardTitle>
               <span className="rounded-full border bg-muted px-2.5 py-0.5 text-xs text-muted-foreground">
                 Data contoh
               </span>
@@ -61,9 +59,8 @@ export default function DashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="pb-6">
-            <JakartaMap />
+            <JakartaMap footer={<PetaLegenda />} />
           </CardContent>
-          <PetaLegenda />
         </Card>
 
         <p className="mt-3 text-xs text-muted-foreground">

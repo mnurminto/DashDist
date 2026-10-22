@@ -7,7 +7,7 @@ import { formatRupiahRingkas } from "@/lib/dashboard/format";
  */
 export function PetaLegenda() {
   return (
-    <div className="border-t px-6 py-4 sm:px-6">
+    <div className="mt-4 border-t pt-4">
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
         <span className="text-xs font-medium text-foreground">
           Dana tersalurkan

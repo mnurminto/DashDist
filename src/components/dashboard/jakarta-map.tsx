@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Maximize2, Minimize2 } from "lucide-react";
 import { cn } from "cn";
 import { GEO, KECAMATAN, SKALA } from "@/lib/dashboard/mock-data";
 import { formatAngka, formatRupiah } from "@/lib/dashboard/format";
@@ -11,12 +12,56 @@ type Sorot = { kode: string; x: number; y: number };
 
 type Props = {
   className?: string;
+  /** Konten tambahan (mis. legenda) yang ikut tampil saat layar penuh. */
+  footer?: React.ReactNode;
 };
 
-export function JakartaMap({ className }: Props) {
+export function JakartaMap({ className, footer }: Props) {
   const wadah = useRef<HTMLDivElement>(null);
+  const kartu = useRef<HTMLDivElement>(null);
   const [sorot, setSorot] = useState<Sorot | null>(null);
   const [dipilih, setDipilih] = useState<string | null>(null);
+  const [layarPenuh, setLayarPenuh] = useState(false);
+
+  // Ikuti perubahan layar penuh dari browser (termasuk saat pengguna menekan Esc).
+  useEffect(() => {
+    const pantau = () =>
+      setLayarPenuh(
+        Boolean(kartu.current) && document.fullscreenElement === kartu.current,
+      );
+    document.addEventListener("fullscreenchange", pantau);
+    return () => document.removeEventListener("fullscreenchange", pantau);
+  }, []);
+
+  useEffect(() => {
+    if (!layarPenuh) return;
+    const keluar = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !document.fullscreenElement) {
+        setLayarPenuh(false);
+      }
+    };
+    document.addEventListener("keydown", keluar);
+    return () => document.removeEventListener("keydown", keluar);
+  }, [layarPenuh]);
+
+  async function alihLayarPenuh() {
+    const elemen = kartu.current;
+    if (!elemen) return;
+    if (document.fullscreenElement) {
+      await document.exitFullscreen().catch(() => undefined);
+      return;
+    }
+    if (elemen.requestFullscreen) {
+      try {
+        await elemen.requestFullscreen();
+        return;
+      } catch {
+        // Beberapa browser memblokir fullscreen (mis. di dalam iframe).
+        // Pakai tampilan penuh versi CSS sebagai gantinya.
+      }
+    }
+    setLayarPenuh((sebelumnya) => !sebelumnya);
+  }
 
   const dataByCode = useMemo(
     () => new Map(KECAMATAN.map((kecamatan) => [kecamatan.code, kecamatan])),
@@ -104,100 +149,135 @@ export function JakartaMap({ className }: Props) {
 
   return (
     <div
+      ref={kartu}
       className={cn(
-        "grid gap-5 md:grid-cols-[minmax(0,1fr)_16rem] md:items-start",
+        "relative",
+        layarPenuh &&
+          "fixed inset-0 z-50 flex flex-col gap-3 overflow-auto bg-background p-4 sm:p-6",
         className,
       )}
     >
-      <div ref={wadah} className="relative">
-        <svg
-          viewBox={`0 0 ${GEO.viewBox.width} ${GEO.viewBox.height}`}
-          className="mx-auto block h-auto w-full max-w-[720px]"
-          role="group"
-          aria-label="Peta sebaran bantuan per kecamatan di DKI Jakarta"
-          onMouseLeave={() => setSorot(null)}
+      <div className="mb-1 flex items-center justify-end">
+        <button
+          type="button"
+          onClick={alihLayarPenuh}
+          className="inline-flex items-center gap-1.5 rounded-md border bg-background px-2.5 py-1.5 text-xs font-medium transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          aria-pressed={layarPenuh}
         >
-          {GEO.kecamatan.map((wilayah) =>
-            renderWilayah(wilayah.code, wilayah.path, { pusat: wilayah.pusat }),
+          {layarPenuh ? (
+            <Minimize2 className="size-3.5" aria-hidden="true" />
+          ) : (
+            <Maximize2 className="size-3.5" aria-hidden="true" />
           )}
+          {layarPenuh ? "Keluar layar penuh" : "Layar penuh"}
+        </button>
+      </div>
 
-          {GEO.kotaLabel.map((kota) => (
-            <text
-              key={kota.nama}
-              x={kota.x}
-              y={kota.y}
-              textAnchor="middle"
-              className="pointer-events-none hidden sm:block"
-              style={{
-                fontSize: 15,
-                fontWeight: 600,
-                fill: "#4a423c",
-                paintOrder: "stroke",
-                stroke: "#ffffff",
-                strokeWidth: 4,
-                strokeLinejoin: "round",
-                letterSpacing: "0.02em",
-              }}
-            >
-              {kota.nama.replace("Jakarta ", "")}
-            </text>
-          ))}
-        </svg>
+      <div
+        className={cn(
+          "grid gap-5 md:grid-cols-[minmax(0,1fr)_16rem] md:items-start",
+          layarPenuh && "flex-1",
+        )}
+      >
+        <div ref={wadah} className="relative">
+          <svg
+            viewBox={`0 0 ${GEO.viewBox.width} ${GEO.viewBox.height}`}
+            className={cn(
+              "mx-auto block h-auto",
+              layarPenuh
+                ? "max-h-[70vh] w-auto max-w-full"
+                : "w-full max-w-[720px]",
+            )}
+            role="group"
+            aria-label="Peta sebaran bantuan per kecamatan di DKI Jakarta"
+            onMouseLeave={() => setSorot(null)}
+          >
+            {GEO.kecamatan.map((wilayah) =>
+              renderWilayah(wilayah.code, wilayah.path, {
+                pusat: wilayah.pusat,
+              }),
+            )}
 
-        <div className="mt-2 flex justify-start sm:absolute sm:top-0 sm:left-0 sm:mt-0">
-          <div className="w-28 rounded-lg border bg-background/90 p-2 shadow-sm backdrop-blur sm:w-36">
-            <p className="mb-1 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
-              Kepulauan Seribu
-            </p>
-            <svg
-              viewBox={`0 0 ${GEO.seribu.width} ${GEO.seribu.height}`}
-              className="block h-auto w-full"
-              role="group"
-              aria-label="Peta sebaran bantuan di Kepulauan Seribu"
-            >
-              {GEO.seribu.items.map((wilayah) =>
-                renderWilayah(wilayah.code, wilayah.path, {
-                  stroke: "#c9c3bb",
-                  tingkatMinimum: 2,
-                  pusat: wilayah.pusat,
-                }),
-              )}
-            </svg>
+            {GEO.kotaLabel.map((kota) => (
+              <text
+                key={kota.nama}
+                x={kota.x}
+                y={kota.y}
+                textAnchor="middle"
+                className="pointer-events-none hidden sm:block"
+                style={{
+                  fontSize: 15,
+                  fontWeight: 600,
+                  fill: "#4a423c",
+                  paintOrder: "stroke",
+                  stroke: "#ffffff",
+                  strokeWidth: 4,
+                  strokeLinejoin: "round",
+                  letterSpacing: "0.02em",
+                }}
+              >
+                {kota.nama.replace("Jakarta ", "")}
+              </text>
+            ))}
+          </svg>
+
+          <div className="mt-2 flex justify-start sm:absolute sm:top-0 sm:left-0 sm:mt-0">
+            <div className="w-28 rounded-lg border bg-background/90 p-2 shadow-sm backdrop-blur sm:w-36">
+              <p className="mb-1 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
+                Kepulauan Seribu
+              </p>
+              <svg
+                viewBox={`0 0 ${GEO.seribu.width} ${GEO.seribu.height}`}
+                className="block h-auto w-full"
+                role="group"
+                aria-label="Peta sebaran bantuan di Kepulauan Seribu"
+              >
+                {GEO.seribu.items.map((wilayah) =>
+                  renderWilayah(wilayah.code, wilayah.path, {
+                    stroke: "#c9c3bb",
+                    tingkatMinimum: 2,
+                    pusat: wilayah.pusat,
+                  }),
+                )}
+              </svg>
+            </div>
           </div>
+
+          {info && sorot && (
+            <div
+              className="pointer-events-none absolute z-10 w-52 -translate-x-1/2 -translate-y-[calc(100%+16px)] rounded-lg border bg-card px-3 py-2 text-xs shadow-md"
+              style={{ left: sorot.x, top: sorot.y }}
+              aria-hidden="true"
+            >
+              <p className="font-semibold text-card-foreground">{info.nama}</p>
+              <p className="text-muted-foreground">{info.kota}</p>
+              <dl className="mt-1.5 space-y-0.5">
+                <div className="flex justify-between gap-3">
+                  <dt className="text-muted-foreground">Dana</dt>
+                  <dd className="font-medium text-card-foreground">
+                    {formatRupiah(info.dana)}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-3">
+                  <dt className="text-muted-foreground">Penerima</dt>
+                  <dd className="font-medium text-card-foreground">
+                    {formatAngka(info.penerima)}
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          )}
         </div>
 
-        {info && sorot && (
-          <div
-            className="pointer-events-none absolute z-10 w-52 -translate-x-1/2 -translate-y-[calc(100%+16px)] rounded-lg border bg-card px-3 py-2 text-xs shadow-md"
-            style={{ left: sorot.x, top: sorot.y }}
-            aria-hidden="true"
-          >
-            <p className="font-semibold text-card-foreground">{info.nama}</p>
-            <p className="text-muted-foreground">{info.kota}</p>
-            <dl className="mt-1.5 space-y-0.5">
-              <div className="flex justify-between gap-3">
-                <dt className="text-muted-foreground">Dana</dt>
-                <dd className="font-medium text-card-foreground">
-                  {formatRupiah(info.dana)}
-                </dd>
-              </div>
-              <div className="flex justify-between gap-3">
-                <dt className="text-muted-foreground">Penerima</dt>
-                <dd className="font-medium text-card-foreground">
-                  {formatAngka(info.penerima)}
-                </dd>
-              </div>
-            </dl>
-          </div>
-        )}
+        <div className="md:sticky md:top-4">
+          <RingkasanWilayah
+            data={wilayahDipilih}
+            onTutup={dipilih ? () => setDipilih(null) : undefined}
+          />
+        </div>
       </div>
 
-      <div className="md:sticky md:top-4">
-        <RingkasanWilayah
-          data={wilayahDipilih}
-          onTutup={dipilih ? () => setDipilih(null) : undefined}
-        />
-      </div>
+      {footer && <div className={cn(layarPenuh && "border-t")}>{footer}</div>}
     </div>
   );
 }

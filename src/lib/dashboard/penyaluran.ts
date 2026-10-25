@@ -15,6 +15,8 @@ export type BarisPenyaluran = {
   program: string;
   /** Tahun penyaluran, mis. "2025". */
   tahun: string;
+  /** Bulan penyaluran, 1–12. */
+  bulan: number;
   penerima: number;
   dana: number;
   transaksi: number;
@@ -53,6 +55,9 @@ export const FILTER_AWAL: FilterState = {
 };
 
 export const TAHUN_TERSEDIA = ["2026", "2025", "2024"] as const;
+
+/** Bulan 1–12, dipakai untuk sebaran bulanan pada data contoh. */
+export const BULAN = Array.from({ length: 12 }, (_, i) => i + 1);
 
 export function jumlahFilterAktif(nilai: FilterState): number {
   return Object.values(nilai).filter((isi) => isi !== "semua").length;
@@ -100,8 +105,9 @@ function buatBaris(kecamatan: Kecamatan): BarisPenyaluran[] {
   const acak = seededRandom(`${kecamatan.code}-penyaluran`);
   const bobotProgram = PROGRAM.map(() => 0.35 + acak());
   const bobotTahun = TAHUN_TERSEDIA.map(() => 0.35 + acak());
+  const bobotBulan = BULAN.map(() => 0.35 + acak());
 
-  // Sebar penerima ke setiap program, lalu ke setiap tahun.
+  // Sebar penerima ke setiap program, lalu ke setiap tahun, lalu ke bulan.
   const perProgram = bagiProporsional(kecamatan.penerima, bobotProgram);
   const danaPerProgram = bagiProporsional(kecamatan.dana, bobotProgram);
   const transaksiPerProgram = bagiProporsional(
@@ -126,13 +132,34 @@ function buatBaris(kecamatan: Kecamatan): BarisPenyaluran[] {
       ) {
         return;
       }
-      hasil.push({
-        kecamatan: kecamatan.code,
-        program: program.id,
-        tahun,
-        penerima: penerimaTahunan[iTahun],
-        dana: danaTahunan[iTahun],
-        transaksi: transaksiTahunan[iTahun],
+
+      const penerimaBulanan = bagiProporsional(
+        penerimaTahunan[iTahun],
+        bobotBulan,
+      );
+      const danaBulanan = bagiProporsional(danaTahunan[iTahun], bobotBulan);
+      const transaksiBulanan = bagiProporsional(
+        transaksiTahunan[iTahun],
+        bobotBulan,
+      );
+
+      BULAN.forEach((bulan, iBulan) => {
+        if (
+          penerimaBulanan[iBulan] === 0 &&
+          danaBulanan[iBulan] === 0 &&
+          transaksiBulanan[iBulan] === 0
+        ) {
+          return;
+        }
+        hasil.push({
+          kecamatan: kecamatan.code,
+          program: program.id,
+          tahun,
+          bulan,
+          penerima: penerimaBulanan[iBulan],
+          dana: danaBulanan[iBulan],
+          transaksi: transaksiBulanan[iBulan],
+        });
       });
     });
   });
@@ -140,7 +167,7 @@ function buatBaris(kecamatan: Kecamatan): BarisPenyaluran[] {
   return hasil;
 }
 
-/** Buku besar contoh: 46 kecamatan × 6 program × 3 tahun. */
+/** Buku besar contoh: 46 kecamatan × 6 program × 3 tahun × 12 bulan. */
 export const PENYALURAN: readonly BarisPenyaluran[] =
   KECAMATAN.flatMap(buatBaris);
 
@@ -221,4 +248,100 @@ export function ringkasPerWilayah(
   }
 
   return hasil;
+}
+
+const NAMA_BULAN = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "Mei",
+  "Jun",
+  "Jul",
+  "Agu",
+  "Sep",
+  "Okt",
+  "Nov",
+  "Des",
+] as const;
+
+export type TitikBulanan = {
+  tahun: number;
+  bulan: number;
+  /** Label pendek, mis. "Mar 2025". */
+  label: string;
+  dana: number;
+  penerima: number;
+  transaksi: number;
+};
+
+/** Rekap per bulan (urut lama → baru) untuk grafik tren. */
+export function ringkasBulanan(
+  rows: readonly BarisPenyaluran[],
+): TitikBulanan[] {
+  const peta = new Map<string, TitikBulanan>();
+
+  for (const baris of rows) {
+    const kunci = `${baris.tahun}-${String(baris.bulan).padStart(2, "0")}`;
+    const sekarang =
+      peta.get(kunci) ??
+      ({
+        tahun: Number(baris.tahun),
+        bulan: baris.bulan,
+        label: `${NAMA_BULAN[baris.bulan - 1]} ${baris.tahun}`,
+        dana: 0,
+        penerima: 0,
+        transaksi: 0,
+      } satisfies TitikBulanan);
+
+    peta.set(kunci, {
+      ...sekarang,
+      dana: sekarang.dana + baris.dana,
+      penerima: sekarang.penerima + baris.penerima,
+      transaksi: sekarang.transaksi + baris.transaksi,
+    });
+  }
+
+  return [...peta.values()].sort(
+    (a, b) => a.tahun - b.tahun || a.bulan - b.bulan,
+  );
+}
+
+/** Rekap per tahun (urut lama → baru) untuk mode tahunan. */
+export function ringkasTahunan(rows: readonly BarisPenyaluran[]): {
+  tahun: number;
+  label: string;
+  dana: number;
+  penerima: number;
+  transaksi: number;
+}[] {
+  const peta = new Map<
+    number,
+    {
+      tahun: number;
+      label: string;
+      dana: number;
+      penerima: number;
+      transaksi: number;
+    }
+  >();
+
+  for (const baris of rows) {
+    const tahun = Number(baris.tahun);
+    const sekarang = peta.get(tahun) ?? {
+      tahun,
+      label: String(tahun),
+      dana: 0,
+      penerima: 0,
+      transaksi: 0,
+    };
+    peta.set(tahun, {
+      ...sekarang,
+      dana: sekarang.dana + baris.dana,
+      penerima: sekarang.penerima + baris.penerima,
+      transaksi: sekarang.transaksi + baris.transaksi,
+    });
+  }
+
+  return [...peta.values()].sort((a, b) => a.tahun - b.tahun);
 }

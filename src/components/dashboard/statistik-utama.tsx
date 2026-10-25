@@ -1,5 +1,17 @@
-import { Banknote, Layers, MapPin, Users, type LucideIcon } from "lucide-react";
-import { KECAMATAN, PROGRAM, RINGKASAN_DKI } from "@/lib/dashboard/mock-data";
+import {
+  Banknote,
+  Layers,
+  MapPin,
+  Percent,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
+import {
+  KECAMATAN,
+  PROGRAM,
+  RINGKASAN_DKI,
+  type Kecamatan,
+} from "@/lib/dashboard/mock-data";
 import { formatAngka, formatRupiah } from "@/lib/dashboard/format";
 
 type Kartu = {
@@ -9,46 +21,75 @@ type Kartu = {
   ikon: LucideIcon;
 };
 
-/** Kartu ringkasan angka utama DKI Jakarta. */
-export function StatistikUtama() {
+type Props = {
+  /** Kalau dipilih, angka berubah menjadi ringkasan wilayah tersebut. */
+  wilayah?: Kecamatan | null;
+};
+
+/** Kartu ringkasan angka: total DKI Jakarta, atau satu wilayah terpilih. */
+export function StatistikUtama({ wilayah }: Props) {
   const jumlahKota = new Set(KECAMATAN.map((kecamatan) => kecamatan.kota)).size;
-  const penerimaPerKecamatan = Math.round(
-    RINGKASAN_DKI.penerima / KECAMATAN.length,
-  );
-  const danaPerPenerima = Math.round(RINGKASAN_DKI.dana / RINGKASAN_DKI.penerima);
-  const programPerKecamatan = (
-    RINGKASAN_DKI.program / KECAMATAN.length
-  ).toLocaleString("id-ID", { maximumFractionDigits: 1 });
+
+  const penerima = wilayah?.penerima ?? RINGKASAN_DKI.penerima;
+  const dana = wilayah?.dana ?? RINGKASAN_DKI.dana;
+  const program = wilayah?.program ?? PROGRAM.length;
+  const porsiDana = wilayah ? (wilayah.dana / RINGKASAN_DKI.dana) * 100 : 0;
 
   const kartu: Kartu[] = [
     {
       label: "Penerima manfaat",
-      nilai: `${formatAngka(RINGKASAN_DKI.penerima)} orang`,
-      keterangan: `± ${formatAngka(penerimaPerKecamatan)} orang per kecamatan`,
+      nilai: `${formatAngka(penerima)} orang`,
+      keterangan: wilayah
+        ? `penerima di Kecamatan ${wilayah.nama}`
+        : `± ${formatAngka(Math.round(RINGKASAN_DKI.penerima / KECAMATAN.length))} orang per kecamatan`,
       ikon: Users,
     },
     {
       label: "Dana tersalurkan",
-      nilai: formatRupiah(RINGKASAN_DKI.dana),
-      keterangan: `${formatRupiah(danaPerPenerima)} per penerima manfaat`,
+      nilai: formatRupiah(dana),
+      keterangan: wilayah
+        ? `untuk penerima di Kecamatan ${wilayah.nama}`
+        : `${formatRupiah(Math.round(RINGKASAN_DKI.dana / RINGKASAN_DKI.penerima))} per penerima manfaat`,
       ikon: Banknote,
     },
     {
       label: "Program berjalan",
-      nilai: `${PROGRAM.length} program`,
-      keterangan: `rata-rata ${programPerKecamatan} program per kecamatan`,
+      nilai: `${program} program`,
+      keterangan: wilayah
+        ? `program yang menyalurkan di wilayah ini`
+        : `rata-rata ${(RINGKASAN_DKI.program / KECAMATAN.length).toLocaleString("id-ID", { maximumFractionDigits: 1 })} program per kecamatan`,
       ikon: Layers,
     },
-    {
-      label: "Wilayah terjangkau",
-      nilai: `${KECAMATAN.length} kecamatan`,
-      keterangan: `${jumlahKota - 1} kota administrasi + Kepulauan Seribu`,
-      ikon: MapPin,
-    },
+    wilayah
+      ? {
+          label: "Porsi dana DKI",
+          nilai: `${porsiDana.toLocaleString("id-ID", { maximumFractionDigits: 1 })}%`,
+          keterangan: `dari total ${formatRupiah(RINGKASAN_DKI.dana)} di DKI Jakarta`,
+          ikon: Percent,
+        }
+      : {
+          label: "Wilayah terjangkau",
+          nilai: `${KECAMATAN.length} kecamatan`,
+          keterangan: `${jumlahKota - 1} kota administrasi + Kepulauan Seribu`,
+          ikon: MapPin,
+        },
   ];
 
   return (
     <section aria-label="Ringkasan statistik bantuan" className="mt-8">
+      <div className="mb-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+        <h2 className="text-sm font-semibold tracking-tight">
+          {wilayah
+            ? `Ringkasan Kecamatan ${wilayah.nama}`
+            : "Ringkasan DKI Jakarta"}
+        </h2>
+        <p className="text-xs text-muted-foreground">
+          {wilayah
+            ? `${wilayah.kota} · klik wilayah lain di peta untuk berganti`
+            : "akumulasi seluruh wilayah dan program"}
+        </p>
+      </div>
+
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {kartu.map((item) => {
           const Ikon = item.ikon;

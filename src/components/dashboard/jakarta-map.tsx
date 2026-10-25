@@ -14,13 +14,16 @@ type Props = {
   className?: string;
   /** Konten tambahan (mis. legenda) yang ikut tampil saat layar penuh. */
   footer?: React.ReactNode;
+  /** Kode kecamatan yang sedang dipilih (dikendalikan halaman induk). */
+  dipilih: string | null;
+  /** Dipanggil saat pengguna memilih atau menutup pilihan wilayah. */
+  onPilih: (kode: string | null) => void;
 };
 
-export function JakartaMap({ className, footer }: Props) {
+export function JakartaMap({ className, footer, dipilih, onPilih }: Props) {
   const wadah = useRef<HTMLDivElement>(null);
   const kartu = useRef<HTMLDivElement>(null);
   const [sorot, setSorot] = useState<Sorot | null>(null);
-  const [dipilih, setDipilih] = useState<string | null>(null);
   const [layarPenuh, setLayarPenuh] = useState(false);
 
   // Ikuti perubahan layar penuh dari browser (termasuk saat pengguna menekan Esc).
@@ -73,7 +76,7 @@ export function JakartaMap({ className, footer }: Props) {
   const wilayahDipilih = dipilih ? (dataByCode.get(dipilih) ?? null) : null;
 
   function pilih(kode: string) {
-    setDipilih((current) => (current === kode ? null : kode));
+    onPilih(dipilih === kode ? null : kode);
   }
 
   function posisiTooltip(e: React.MouseEvent<SVGPathElement>): {
@@ -272,7 +275,7 @@ export function JakartaMap({ className, footer }: Props) {
         <div className="md:sticky md:top-4">
           <RingkasanWilayah
             data={wilayahDipilih}
-            onTutup={dipilih ? () => setDipilih(null) : undefined}
+            onTutup={dipilih ? () => onPilih(null) : undefined}
           />
         </div>
       </div>

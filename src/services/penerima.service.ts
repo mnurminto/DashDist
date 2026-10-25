@@ -1,5 +1,6 @@
 import "server-only";
-import { and, asc, count, desc, eq, ilike, type SQL } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, sql, type SQL } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
 import {
   penerimaManfaat,
@@ -133,5 +134,89 @@ export async function getPenerimaWilayah(
     perHalaman,
     totalHalaman: Math.max(Math.ceil(total / perHalaman), 1),
     kategoriTersedia: daftarKategori.map((item) => item.kategori),
+  };
+}
+
+export type DetailPenerima = {
+  penerima: {
+    id: string;
+    nama: string;
+    kategori: string;
+    wilayah: { kode: string; nama: string; kota: string };
+  };
+  riwayat: {
+    id: string;
+    program: string;
+    dana: number;
+    tanggal: string;
+  }[];
+  total: { dana: number; transaksi: number; program: number };
+};
+
+/**
+ * Rincian satu penerima: identitas (nama disamarkan), wilayah, seluruh
+ * riwayat penyaluran, dan totalnya. `null` bila id tidak ditemukan.
+ */
+export async function getDetailPenerima(
+  id: string,
+): Promise<DetailPenerima | null> {
+  const induk = alias(wilayah, "induk");
+
+  const [data] = await db
+    .select({
+      id: penerimaManfaat.id,
+      nama: penerimaManfaat.nama,
+      kategori: penerimaManfaat.kategori,
+      kode: wilayah.kode,
+      wilayahNama: wilayah.nama,
+      kota: sql<string>`coalesce(${induk.nama}, ${wilayah.nama})`,
+    })
+    .from(penerimaManfaat)
+    .innerJoin(wilayah, eq(penerimaManfaat.wilayahId, wilayah.id))
+    .leftJoin(induk, eq(wilayah.parentId, induk.id))
+    .where(eq(penerimaManfaat.id, id))
+    .limit(1);
+
+  if (!data) return null;
+
+  const riwayat = await db
+    .select({
+      id: penyaluranBantuan.id,
+      program: program.nama,
+      dana: penyaluranBantuan.jumlahDana,
+      tanggal: penyaluranBantuan.tanggal,
+    })
+    .from(penyaluranBantuan)
+    .innerJoin(program, eq(penyaluranBantuan.programId, program.id))
+    .where(eq(penyaluranBantuan.penerimaId, id))
+    .orderBy(desc(penyaluranBantuan.tanggal));
+
+  const dana = riwayat.reduce((jumlah, item) => jumlah + Number(item.dana), 0);
+
+  return {
+    penerima: {
+      id: data.id,
+      nama: samarkanNama(data.nama),
+      kategori: data.kategori,
+      wilayah: {
+        kode: data.kode,
+        nama: data.wilayahNama,
+        kota: data.kota,
+      },
+    },
+    riwayat: riwayat.map((item) => ({
+      id: item.id,
+      program: item.program,
+      dana: Number(item.dana),
+      tanggal:
+        item.tanggal instanceof Date
+          ? item.tanggal.toISOString().slice(0, 10)
+          : String(item.tanggal),
+    })),
+    total: {
+      dana,
+      transaksi: riwayat.length,
+      program: new Set(riwayat.map((item) => item.program)).size,
+    },
   };
 }

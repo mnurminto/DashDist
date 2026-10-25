@@ -106,13 +106,24 @@ export function JakartaMap({
     onPilih(dipilih === kode ? null : kode);
   }
 
+  /** Jaga kartu info tetap di dalam panggung peta (lebar kartu 208px). */
+  function batasiX(x: number): number {
+    const lebar = wadah.current?.clientWidth ?? 0;
+    if (!lebar) return x;
+    const tepi = 112;
+    return Math.min(Math.max(x, tepi), Math.max(lebar - tepi, tepi));
+  }
+
   function posisiTooltip(e: React.MouseEvent<SVGPathElement>): {
     x: number;
     y: number;
   } {
     const rect = wadah.current?.getBoundingClientRect();
     if (!rect) return { x: 0, y: 0 };
-    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    return {
+      x: batasiX(e.clientX - rect.left),
+      y: e.clientY - rect.top,
+    };
   }
 
   function renderWilayah(
@@ -167,7 +178,11 @@ export function JakartaMap({
           const pusat = opsi?.pusat;
           setSorot(
             pusat && rect
-              ? { kode, x: pusat.x * skala, y: pusat.y * skala }
+              ? {
+                  kode,
+                  x: batasiX(pusat.x * skala),
+                  y: pusat.y * skala,
+                }
               : { kode, x: 0, y: 0 },
           );
         }}
@@ -212,11 +227,25 @@ export function JakartaMap({
           layarPenuh && "flex-1",
         )}
       >
-        <div ref={wadah} className="relative">
+        <div
+          ref={wadah}
+          className="relative rounded-xl border border-border/50 bg-[#0c0c0c]"
+        >
+          {/* Latar "panggung" peta: glow hangat + grid halus. */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle at 52% 42%, rgba(195,176,100,0.12), transparent 60%), linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px)",
+              backgroundSize: "auto, 64px 64px, 64px 64px",
+            }}
+          />
+
           <svg
             viewBox={`0 0 ${GEO.viewBox.width} ${GEO.viewBox.height}`}
             className={cn(
-              "mx-auto block w-full max-w-[760px]",
+              "relative mx-auto block w-full max-w-[760px]",
               layarPenuh
                 ? "h-full max-h-[72vh]"
                 : "h-auto sm:h-[clamp(380px,56vh,640px)]",
@@ -255,9 +284,9 @@ export function JakartaMap({
             ))}
           </svg>
 
-          <div className="mt-2 flex justify-start sm:absolute sm:top-0 sm:left-0 sm:mt-0">
-            <div className="w-28 rounded-lg border bg-background/90 p-2 shadow-sm backdrop-blur sm:w-36">
-              <p className="mb-1 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
+          <div className="absolute bottom-2 left-2 z-10 hidden sm:bottom-3 sm:left-3 sm:block">
+            <div className="w-28 rounded-xl border border-border/70 bg-background/70 p-2 backdrop-blur-md">
+              <p className="mb-1 text-[9px] font-medium tracking-[0.14em] text-muted-foreground uppercase">
                 Kepulauan Seribu
               </p>
               <svg
@@ -277,28 +306,51 @@ export function JakartaMap({
             </div>
           </div>
 
+          <p className="relative mt-2 px-3 text-[10px] leading-4 text-muted-foreground sm:hidden">
+            Kepulauan Seribu (2 kecamatan) ikut dihitung. Pilih lewat filter
+            Wilayah untuk melihat angkanya.
+          </p>
+
           {info && sorot && (
             <div
-              className="pointer-events-none absolute z-10 w-52 -translate-x-1/2 -translate-y-[calc(100%+16px)] rounded-xl border border-border bg-card/95 px-3 py-2 text-xs shadow-xl backdrop-blur"
+              className={cn(
+                "pointer-events-none absolute z-10 w-52 -translate-x-1/2 rounded-xl border border-border bg-card/95 px-3 py-2 text-xs shadow-xl backdrop-blur",
+                sorot.y < 120
+                  ? "translate-y-4"
+                  : "-translate-y-[calc(100%+16px)]",
+              )}
               style={{ left: sorot.x, top: sorot.y }}
               aria-hidden="true"
             >
-              <p className="font-semibold text-card-foreground">{info.nama}</p>
-              <p className="text-muted-foreground">{info.kota}</p>
-              <dl className="mt-1.5 space-y-0.5">
+              <p className="text-[10px] font-medium tracking-[0.14em] text-muted-foreground uppercase">
+                {info.kota}
+              </p>
+              <p className="mt-0.5 text-sm font-semibold text-card-foreground">
+                {info.nama}
+              </p>
+              <dl className="mt-2 space-y-1 border-t border-border/60 pt-1.5">
                 <div className="flex justify-between gap-3">
                   <dt className="text-muted-foreground">Dana</dt>
-                  <dd className="font-medium text-card-foreground">
+                  <dd className="font-medium text-card-foreground tabular-nums">
                     {formatRupiah(info.dana)}
                   </dd>
                 </div>
                 <div className="flex justify-between gap-3">
                   <dt className="text-muted-foreground">Penerima</dt>
-                  <dd className="font-medium text-card-foreground">
+                  <dd className="font-medium text-card-foreground tabular-nums">
                     {formatAngka(info.penerima)}
                   </dd>
                 </div>
               </dl>
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "absolute left-1/2 size-2 -translate-x-1/2 rotate-45 border-border bg-card",
+                  sorot.y < 120
+                    ? "-top-1 border-t border-l"
+                    : "-bottom-1 border-r border-b",
+                )}
+              />
             </div>
           )}
         </div>

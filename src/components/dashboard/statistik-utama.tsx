@@ -100,13 +100,16 @@ export function StatistikUtama({ total, wilayah, adaFilter }: Props) {
         </p>
       </div>
 
-      <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <ul
+        key={`${wilayah?.code ?? "dki"}-${total.dana}-${total.penerima}`}
+        className="grid animate-in gap-3 duration-300 fade-in-0 slide-in-from-bottom-1 motion-reduce:animate-none sm:grid-cols-2 xl:grid-cols-4"
+      >
         {kartu.map((item) => {
           const Ikon = item.ikon;
           return (
             <li
               key={item.label}
-              className="relative overflow-hidden rounded-2xl border border-border bg-card/80 p-5"
+              className="relative overflow-hidden rounded-2xl border border-border bg-card/80 p-5 transition-colors hover:border-primary/25"
             >
               <div className="flex items-start justify-between gap-2">
                 <p className="text-[10px] font-medium tracking-[0.16em] text-muted-foreground uppercase">

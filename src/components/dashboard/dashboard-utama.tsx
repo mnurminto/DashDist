@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { FilterX } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -125,13 +126,36 @@ export function DashboardUtama() {
             </CardDescription>
           </CardHeader>
           <CardContent className="pb-5">
-            <JakartaMap
-              dipilih={kodeAktif}
-              onPilih={pilihWilayah}
-              nilai={perWilayah}
-              skala={skala}
-              footer={<PetaLegenda kelas={skala.kelas} />}
-            />
+            {total.wilayah === 0 ? (
+              <div className="flex min-h-[320px] flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border/70 bg-card/30 p-8 text-center">
+                <FilterX
+                  className="size-6 text-muted-foreground/60"
+                  aria-hidden="true"
+                />
+                <p className="text-sm font-medium">
+                  Tidak ada penyaluran pada kombinasi filter ini
+                </p>
+                <p className="max-w-sm text-xs leading-5 text-muted-foreground">
+                  Coba ganti program atau periode, lalu tampilkan kembali semua
+                  data.
+                </p>
+                <button
+                  type="button"
+                  onClick={reset}
+                  className="mt-1 inline-flex h-8 items-center gap-1.5 rounded-lg border border-border bg-secondary/50 px-3 text-xs font-medium transition-colors hover:bg-secondary focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-none"
+                >
+                  Tampilkan semua data
+                </button>
+              </div>
+            ) : (
+              <JakartaMap
+                dipilih={kodeAktif}
+                onPilih={pilihWilayah}
+                nilai={perWilayah}
+                skala={skala}
+                footer={<PetaLegenda kelas={skala.kelas} />}
+              />
+            )}
           </CardContent>
         </Card>
 

@@ -81,7 +81,11 @@ export default function DashboardPage() {
             </nav>
 
             <div className="flex items-center gap-3">
-              <span className="hidden text-xs text-muted-foreground sm:inline">
+              <span className="hidden items-center gap-2 text-xs text-muted-foreground sm:flex">
+                <span className="relative flex size-1.5" aria-hidden="true">
+                  <span className="absolute inset-0 animate-ping rounded-full bg-primary/40 motion-reduce:animate-none" />
+                  <span className="relative inline-flex size-1.5 rounded-full bg-primary" />
+                </span>
                 Diperbarui {formatWaktu(TERAKHIR_DIPERBARUI)}
               </span>
               <div

@@ -145,6 +145,61 @@ export async function getPerProgram(filter: SebaranQuery): Promise<
   }));
 }
 
+export type BarisLaporan = {
+  kodeWilayah: string;
+  kecamatan: string;
+  kota: string;
+  program: string;
+  tahun: number | null;
+  penerima: number;
+  dana: number;
+  transaksi: number;
+};
+
+/**
+ * Data baris-per-baris untuk ekspor laporan (CSV/Excel/PDF).
+ * Satu baris = satu wilayah × program × tahun pada filter aktif.
+ */
+export async function getLaporan(
+  filter: SebaranQuery,
+): Promise<BarisLaporan[]> {
+  const baris = await db
+    .select({
+      kodeWilayah: wilayah.kode,
+      kecamatan: wilayah.nama,
+      kota: sql<string>`coalesce(${induk.nama}, ${wilayah.nama})`,
+      program: program.nama,
+      tahun: penyaluranBantuan.tahun,
+      penerima: sql<number>`count(distinct ${penyaluranBantuan.penerimaId})::int`,
+      dana: DANA,
+      transaksi: sql<number>`count(*)::int`,
+    })
+    .from(penyaluranBantuan)
+    .innerJoin(wilayah, eq(penyaluranBantuan.wilayahId, wilayah.id))
+    .leftJoin(induk, eq(wilayah.parentId, induk.id))
+    .innerJoin(program, eq(penyaluranBantuan.programId, program.id))
+    .where(syarat(filter))
+    .groupBy(
+      wilayah.kode,
+      wilayah.nama,
+      induk.nama,
+      program.nama,
+      penyaluranBantuan.tahun,
+    )
+    .orderBy(wilayah.nama, program.nama, penyaluranBantuan.tahun);
+
+  return baris.map((item) => ({
+    kodeWilayah: item.kodeWilayah,
+    kecamatan: item.kecamatan,
+    kota: item.kota,
+    program: item.program,
+    tahun: item.tahun === null ? null : Number(item.tahun),
+    penerima: Number(item.penerima),
+    dana: Number(item.dana),
+    transaksi: Number(item.transaksi),
+  }));
+}
+
 /** Deret dana per bulan (urut lama → baru) untuk grafik tren. */
 export async function getBulanan(
   filter: SebaranQuery,

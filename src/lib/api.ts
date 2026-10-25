@@ -105,6 +105,59 @@ export function withApiPermission(
   });
 }
 
+/**
+ * Untuk endpoint baca yang memang publik (mis. dashboard terbuka).
+ * Tidak memakai sesi, jadi jangan pakai untuk data milik pengguna.
+ */
+export async function withPublicApi(
+  handler: () => Promise<Response>,
+  opsi: { cache?: string } = {},
+): Promise<Response> {
+  try {
+    const response = await handler();
+    response.headers.set(
+      "Cache-Control",
+      opsi.cache ?? "public, s-maxage=60, stale-while-revalidate=300",
+    );
+    return response;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      return Response.json(
+        { error: { code: error.code, message: error.message } },
+        { status: error.status, headers: { "Cache-Control": "no-store" } },
+      );
+    }
+    if (error instanceof ZodError) {
+      return Response.json(
+        {
+          error: {
+            code: "VALIDATION_ERROR",
+            message: "Check the supplied fields.",
+            details: error.issues.map((issue) => ({
+              field: issue.path.join("."),
+              message: issue.message,
+            })),
+          },
+        },
+        { status: 422, headers: { "Cache-Control": "no-store" } },
+      );
+    }
+    console.error(
+      "Unexpected public API failure:",
+      error instanceof Error ? error.name : "UnknownError",
+    );
+    return Response.json(
+      {
+        error: {
+          code: "INTERNAL_ERROR",
+          message: "Something went wrong. Try again.",
+        },
+      },
+      { status: 500, headers: { "Cache-Control": "no-store" } },
+    );
+  }
+}
+
 export async function readJson(request: Request): Promise<unknown> {
   const contentType = request.headers
     .get("content-type")

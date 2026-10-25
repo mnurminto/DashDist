@@ -12,24 +12,31 @@ type Kartu = {
 /** Kartu ringkasan angka utama DKI Jakarta. */
 export function StatistikUtama() {
   const jumlahKota = new Set(KECAMATAN.map((kecamatan) => kecamatan.kota)).size;
+  const penerimaPerKecamatan = Math.round(
+    RINGKASAN_DKI.penerima / KECAMATAN.length,
+  );
+  const danaPerPenerima = Math.round(RINGKASAN_DKI.dana / RINGKASAN_DKI.penerima);
+  const programPerKecamatan = (
+    RINGKASAN_DKI.program / KECAMATAN.length
+  ).toLocaleString("id-ID", { maximumFractionDigits: 1 });
 
   const kartu: Kartu[] = [
     {
       label: "Penerima manfaat",
       nilai: `${formatAngka(RINGKASAN_DKI.penerima)} orang`,
-      keterangan: `dari ${formatAngka(RINGKASAN_DKI.penyaluran)} transaksi penyaluran`,
+      keterangan: `± ${formatAngka(penerimaPerKecamatan)} orang per kecamatan`,
       ikon: Users,
     },
     {
       label: "Dana tersalurkan",
       nilai: formatRupiah(RINGKASAN_DKI.dana),
-      keterangan: "akumulasi seluruh program bantuan",
+      keterangan: `${formatRupiah(danaPerPenerima)} per penerima manfaat`,
       ikon: Banknote,
     },
     {
       label: "Program berjalan",
       nilai: `${PROGRAM.length} program`,
-      keterangan: "program bantuan yang aktif menyalurkan",
+      keterangan: `rata-rata ${programPerKecamatan} program per kecamatan`,
       ikon: Layers,
     },
     {
@@ -56,7 +63,7 @@ export function StatistikUtama() {
                 </p>
                 <Ikon className="size-4 text-primary" aria-hidden="true" />
               </div>
-              <p className="mt-3 text-2xl font-semibold tracking-tight text-card-foreground">
+              <p className="mt-3 text-2xl font-semibold tracking-tight text-card-foreground tabular-nums">
                 {item.nilai}
               </p>
               <p className="mt-1 text-xs leading-5 text-muted-foreground">

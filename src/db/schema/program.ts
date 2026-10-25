@@ -1,4 +1,6 @@
+import { sql } from "drizzle-orm";
 import {
+  check,
   index,
   pgTable,
   text,
@@ -16,11 +18,16 @@ export const program = pgTable(
     kode: varchar("kode", { length: 48 }).notNull().unique(),
     nama: varchar("nama", { length: 160 }).notNull(),
     deskripsi: text("deskripsi").notNull().default(""),
-    /** "aktif" atau "selesai". */
+    /** Hanya "aktif" atau "selesai" — dijaga oleh constraint di bawah. */
     status: varchar("status", { length: 24 }).notNull().default("aktif"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
   },
-  (table) => [index("program_status_idx").on(table.status)],
+  (table) => [
+    index("program_status_idx").on(table.status),
+    // Statistik "program berjalan" menghitung status, jadi nilainya dibatasi
+    // supaya tidak ada status lain yang lolos tanpa sengaja.
+    check("program_status_check", sql`${table.status} in ('aktif', 'selesai')`),
+  ],
 );

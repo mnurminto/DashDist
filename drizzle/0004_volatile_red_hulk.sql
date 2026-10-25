@@ -1,0 +1,1 @@
+ALTER TABLE "program" ADD CONSTRAINT "program_status_check" CHECK ("program"."status" in ('aktif', 'selesai'));

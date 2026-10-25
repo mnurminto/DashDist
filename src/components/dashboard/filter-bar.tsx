@@ -1,6 +1,6 @@
 "use client";
 
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, X } from "lucide-react";
 import { cn } from "cn";
 import { KECAMATAN, PROGRAM } from "@/lib/dashboard/mock-data";
 import {
@@ -21,6 +21,30 @@ export function FilterBar({ nilai, onUbah, onReset, className }: Props) {
   const aktif = jumlahFilterAktif(nilai);
 
   const kotaList = [...new Set(KECAMATAN.map((kecamatan) => kecamatan.kota))];
+
+  const namaWilayah = KECAMATAN.find(
+    (kecamatan) => kecamatan.code === nilai.wilayah,
+  )?.nama;
+  const namaProgram = PROGRAM.find(
+    (program) => program.id === nilai.program,
+  )?.nama;
+
+  const chip: { kunci: keyof FilterState; label: string }[] = [];
+  if (nilai.wilayah !== "semua") {
+    chip.push({
+      kunci: "wilayah",
+      label: `Wilayah: ${namaWilayah ?? nilai.wilayah}`,
+    });
+  }
+  if (nilai.program !== "semua") {
+    chip.push({
+      kunci: "program",
+      label: `Program: ${namaProgram ?? nilai.program}`,
+    });
+  }
+  if (nilai.periode !== "semua") {
+    chip.push({ kunci: "periode", label: `Periode: ${nilai.periode}` });
+  }
 
   function ubah<K extends keyof FilterState>(kunci: K, isi: string) {
     onUbah({ ...nilai, [kunci]: isi });
@@ -118,11 +142,39 @@ export function FilterBar({ nilai, onUbah, onReset, className }: Props) {
         </button>
       </div>
 
-      <p className="mt-3 text-xs text-muted-foreground" aria-live="polite">
-        {aktif === 0
-          ? "Menampilkan seluruh data DKI Jakarta."
-          : `${aktif} filter aktif.`}
-      </p>
+      <div
+        className="mt-3 flex flex-wrap items-center gap-2"
+        aria-live="polite"
+      >
+        {aktif === 0 ? (
+          <p className="text-xs text-muted-foreground">
+            Menampilkan seluruh data DKI Jakarta.
+          </p>
+        ) : (
+          <>
+            <span className="text-xs text-muted-foreground">Filter aktif:</span>
+            {chip.map((item) => (
+              <button
+                key={item.kunci}
+                type="button"
+                onClick={() => ubah(item.kunci, "semua")}
+                aria-label={`Hapus filter ${item.label}`}
+                className="inline-flex items-center gap-1 rounded-full border bg-muted px-2.5 py-1 text-xs font-medium transition-colors hover:bg-secondary focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+              >
+                {item.label}
+                <X className="size-3" aria-hidden="true" />
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={onReset}
+              className="rounded-sm text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+            >
+              Hapus semua
+            </button>
+          </>
+        )}
+      </div>
     </section>
   );
 }

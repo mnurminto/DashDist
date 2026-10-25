@@ -1,4 +1,5 @@
 import { withPublicApi } from "@/lib/api";
+import { validasiFilter } from "@/services/filter.service";
 import { getSebaran } from "@/services/sebaran.service";
 import { sebaranQuerySchema } from "@/validators/sebaran";
 
@@ -16,6 +17,9 @@ export function GET(request: Request) {
     const query = sebaranQuerySchema.parse(
       Object.fromEntries(new URL(request.url).searchParams),
     );
+
+    await validasiFilter(query);
+
     return Response.json({ data: await getSebaran(query) });
   });
 }

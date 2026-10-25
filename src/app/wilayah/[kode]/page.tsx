@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { BandingkanWilayah } from "@/components/dashboard/bandingkan-wilayah";
 import { ProfilWilayah } from "@/components/dashboard/profil-wilayah";
 import { RincianProgram } from "@/components/dashboard/rincian-program";
 import { TabelPenerima } from "@/components/dashboard/tabel-penerima";
@@ -61,6 +62,26 @@ export default async function DetailWilayahPage({ params }: Props) {
     dana: total.dana,
     transaksi: total.transaksi,
   };
+
+  const pembanding = (() => {
+    const teratas = semua.slice(0, 5);
+    const sudahAda = teratas.some((item) => item.code === kode);
+    const daftar = sudahAda
+      ? teratas
+      : [...teratas, semua.find((item) => item.code === kode)].filter(
+          (item): item is NonNullable<typeof item> => Boolean(item),
+        );
+    return daftar
+      .sort((a, b) => b.dana - a.dana)
+      .map((item) => ({
+        kode: item.code,
+        nama: item.nama,
+        dana: item.dana,
+        aktif: item.code === kode,
+      }));
+  })();
+
+  const rataRata = semua.length > 0 ? totalDki / semua.length : 0;
 
   const rincianProgram = PROGRAM.map((program) => {
     const subset = baris.filter((item) => item.program === program.id);
@@ -152,11 +173,11 @@ export default async function DetailWilayahPage({ params }: Props) {
               id: "bandingkan",
               label: "Bandingkan",
               isi: (
-                <div className="flex h-56 items-center justify-center rounded-xl border border-dashed border-border/70 bg-background/40">
-                  <p className="text-[11px] text-muted-foreground">
-                    Menyiapkan perbandingan…
-                  </p>
-                </div>
+                <BandingkanWilayah
+                  data={pembanding}
+                  danaWilayah={total.dana}
+                  rataRata={rataRata}
+                />
               ),
             },
           ]}

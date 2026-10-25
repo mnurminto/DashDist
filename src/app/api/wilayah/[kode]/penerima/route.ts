@@ -5,7 +5,8 @@ import { getPenerimaWilayah } from "@/services/penerima.service";
 export const runtime = "nodejs";
 
 const querySchema = z.object({
-  limit: z.coerce.number().int().min(1).max(100).default(20),
+  perHalaman: z.coerce.number().int().min(1).max(100).default(20),
+  halaman: z.coerce.number().int().min(1).max(10_000).default(1),
   kategori: z.enum(["fakir", "miskin", "yatim", "dhuafa", "lansia"]).optional(),
   cari: z.string().trim().min(1).max(60).optional(),
 });
@@ -13,9 +14,9 @@ const querySchema = z.object({
 /**
  * GET /api/wilayah/[kode]/penerima
  *
- * Daftar penerima (nama disamarkan) untuk halaman detail wilayah.
- * Wajib sesi + izin `penyaluran:read-penerima`; tanpa itu API menolak
- * sebelum menyentuh database.
+ * Daftar penerima (nama disamarkan) dengan paginasi, filter kategori, dan
+ * pencarian nama. Wajib sesi + izin `penyaluran:read-penerima`; tanpa itu API
+ * menolak sebelum menyentuh database.
  */
 export function GET(
   request: Request,
@@ -38,13 +39,7 @@ export function GET(
           `Wilayah "${kode}" tidak terdaftar.`,
         );
 
-      return Response.json({
-        data: {
-          wilayah: hasil.wilayah,
-          penerima: hasil.penerima,
-          jumlah: hasil.penerima.length,
-        },
-      });
+      return Response.json({ data: hasil });
     },
   );
 }

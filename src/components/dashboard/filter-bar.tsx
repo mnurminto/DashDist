@@ -50,6 +50,20 @@ export function FilterBar({ nilai, onUbah, onReset, className }: Props) {
     onUbah({ ...nilai, [kunci]: isi });
   }
 
+  /**
+   * Reset semua filter. Kalau dipicu lewat keyboard, fokus dikembalikan ke
+   * kontrol pertama supaya pengguna keyboard tidak "tersesat" setelah tombol
+   * yang sedang difokus berubah menjadi disabled.
+   */
+  function resetkan(dariKeyboard: boolean) {
+    onReset();
+    if (dariKeyboard) {
+      requestAnimationFrame(() => {
+        document.getElementById("filter-wilayah")?.focus();
+      });
+    }
+  }
+
   return (
     <section
       aria-label="Filter data bantuan"
@@ -133,7 +147,7 @@ export function FilterBar({ nilai, onUbah, onReset, className }: Props) {
 
         <button
           type="button"
-          onClick={onReset}
+          onClick={(e) => resetkan(e.nativeEvent.detail === 0)}
           disabled={aktif === 0}
           className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border bg-background px-3 text-sm font-medium shadow-xs transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
         >
@@ -167,7 +181,7 @@ export function FilterBar({ nilai, onUbah, onReset, className }: Props) {
             ))}
             <button
               type="button"
-              onClick={onReset}
+              onClick={(e) => resetkan(e.nativeEvent.detail === 0)}
               className="rounded-sm text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
             >
               Hapus semua

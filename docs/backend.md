@@ -134,3 +134,19 @@ The browser sends your existing session cookie and origin. Visiting `/api/notes`
 6. Run `npm run check`, `npm run build`, and `npm run test:e2e`. Add tests for CRUD, rejected input, anonymous access, and cross-account isolation like `e2e/notes.spec.ts`. Tests use their own disposable PostgreSQL server.
 
 Notes is replaceable example functionality. If removing it from a project that has already migrated, remove its routes/service/validator/schema export and generate a new reviewed migration. Do not delete or rewrite historical migrations, or drop saved notes without authorization.
+
+## Validasi hak akses di server
+
+Aturan izin tidak boleh hanya disembunyikan di UI. Untuk dashboard ini:
+
+| Data | Aturan | Penjaga |
+| --- | --- | --- |
+| Ringkasan agregat (total, per wilayah, tren) | publik | `withPublicApi` |
+| Rincian penerima & riwayatnya | sesi + `penyaluran:read-penerima` | `withApiRinci` di `src/lib/otorisasi.ts` |
+| Manajemen pengguna | sesi + izin `user:list/create/update/delete` | `withApiPermission` |
+
+Selain izin peran, endpoint manajemen pengguna menolak tindakan yang mengunci
+diri sendiri: menurunkan peran sendiri, menonaktifkan akun sendiri, dan
+menghapus akun sendiri (masing-masing `400` dengan kode yang jelas). Aturan ini
+dicek di server sebelum menyentuh Better Auth, jadi tidak bisa dilewati lewat
+pemanggilan API langsung.

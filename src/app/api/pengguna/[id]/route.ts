@@ -33,9 +33,25 @@ export function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  return withApiPermission(request, { user: ["update"] }, async () => {
+  return withApiPermission(request, { user: ["update"] }, async (session) => {
     const { id } = paramsSchema.parse(await params);
     const body = ubahSchema.parse(await readJson(request));
+
+    // Jangan sampai admin mengunci dirinya sendiri: turunkan peran atau
+    // menonaktifkan akun sendiri akan menghilangkan akses secara permanen.
+    const diriSendiri = id === session.user.id;
+    if (diriSendiri && body.peran === "user")
+      throw new ApiError(
+        400,
+        "TIDAK_BISA_TURUNKAN_PERAN_SENDIRI",
+        "Peran akun yang sedang dipakai tidak bisa diturunkan.",
+      );
+    if (diriSendiri && body.aktif === false)
+      throw new ApiError(
+        400,
+        "TIDAK_BISA_NONAKTIFKAN_SENDIRI",
+        "Akun yang sedang dipakai tidak bisa dinonaktifkan.",
+      );
 
     const ada = await ambilPengguna(id, request.headers);
     if (!ada)

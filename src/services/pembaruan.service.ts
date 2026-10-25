@@ -1,5 +1,5 @@
 import "server-only";
-import { desc } from "drizzle-orm";
+import { desc, gt } from "drizzle-orm";
 import { db } from "@/db";
 import { logPembaruanData } from "@/db/schema";
 
@@ -47,4 +47,40 @@ export async function getRiwayatPembaruan(limit = 5): Promise<PembaruanData[]> {
     .limit(Math.min(Math.max(limit, 1), 50));
 
   return baris.map(keBaris);
+}
+
+export type StatusPembaruan = {
+  /** Ada pembaruan yang lebih baru dari `sejak` (atau ada data sama sekali). */
+  baru: boolean;
+  jumlahBaru: number;
+  terakhir: PembaruanData | null;
+  diperiksaPada: string;
+};
+
+/**
+ * Cek apakah ada data baru sejak waktu tertentu.
+ *
+ * Dipakai UI untuk memutuskan apakah lonceng notifikasi perlu menyala.
+ * `sejak` kosong berarti "bandingkan dengan tidak ada apa-apa", sehingga
+ * pembaruan terakhir selalu dianggap baru.
+ */
+export async function getStatusPembaruan(
+  sejak?: Date,
+): Promise<StatusPembaruan> {
+  const [terakhir, jumlah] = await Promise.all([
+    getPembaruanTerakhir(),
+    sejak
+      ? db.$count(logPembaruanData, gt(logPembaruanData.waktu, sejak))
+      : db.$count(logPembaruanData),
+  ]);
+
+  const jumlahBaru = Number(jumlah);
+  const baru = sejak ? jumlahBaru > 0 : terakhir !== null;
+
+  return {
+    baru,
+    jumlahBaru,
+    terakhir,
+    diperiksaPada: new Date().toISOString(),
+  };
 }

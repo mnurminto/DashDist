@@ -13,6 +13,9 @@ import { JakartaMap } from "@/components/dashboard/jakarta-map";
 import { PetaLegenda } from "@/components/dashboard/peta-legenda";
 import { PeringkatWilayah } from "@/components/dashboard/peringkat-wilayah";
 import { RingkasanWilayah } from "@/components/dashboard/ringkasan-wilayah";
+import { PanelTerkunci } from "@/components/dashboard/panel-terkunci";
+import { StatusAkses } from "@/components/dashboard/status-akses";
+import { useSesiTiruan } from "@/lib/dashboard/use-sesi";
 import { StatistikUtama } from "@/components/dashboard/statistik-utama";
 import { FilterBar } from "@/components/dashboard/filter-bar";
 import { AksiLaporan } from "@/components/dashboard/aksi-laporan";
@@ -35,6 +38,7 @@ import { bacaFilterDariQuery, filterKeQuery } from "@/lib/dashboard/ekspor";
  * memilih wilayah/program/periode langsung mengubah kartu dan warna peta.
  */
 export function DashboardUtama() {
+  const sesi = useSesiTiruan();
   const [filter, setFilter] = useState<FilterState>(FILTER_AWAL);
   const [dipilih, setDipilih] = useState<string | null>(null);
   const [kelasDisorot, setKelasDisorot] = useState<number | null>(null);
@@ -134,7 +138,9 @@ export function DashboardUtama() {
 
   return (
     <>
-      <div className="mt-6 flex flex-wrap items-start justify-between gap-3">
+      <StatusAkses sesi={sesi} />
+
+      <div className="mt-4 flex flex-wrap items-start justify-between gap-3">
         <FilterBar
           className="min-w-0 flex-1"
           nilai={filter}
@@ -225,10 +231,21 @@ export function DashboardUtama() {
           aria-label="Ringkasan dan peringkat wilayah"
           className="space-y-4 scroll-mt-24 xl:sticky xl:top-24 xl:self-start"
         >
-          <RingkasanWilayah
-            data={wilayah}
-            onTutup={kodeAktif ? () => pilihWilayah(null) : undefined}
-          />
+          {sesi ? (
+            <RingkasanWilayah
+              data={wilayah}
+              onTutup={kodeAktif ? () => pilihWilayah(null) : undefined}
+            />
+          ) : (
+            wilayah &&
+            kodeAktif && (
+              <PanelTerkunci
+                nama={wilayah.nama}
+                kota={wilayah.kota}
+                onTutup={() => pilihWilayah(null)}
+              />
+            )
+          )}
           <PeringkatWilayah
             data={peringkat}
             aktif={kodeAktif}

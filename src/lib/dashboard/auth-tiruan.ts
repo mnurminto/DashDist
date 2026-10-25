@@ -58,6 +58,7 @@ export function masukTiruan(
 export function simpanSesi(pengguna: PenggunaTiruan) {
   try {
     window.localStorage.setItem(KUNCI_SESI, JSON.stringify(pengguna));
+    window.dispatchEvent(new Event("baznas-sesi-berubah"));
   } catch {
     // Mode privat bisa memblokir localStorage; sesi cukup untuk halaman ini.
   }
@@ -78,6 +79,7 @@ export function bacaSesi(): PenggunaTiruan | null {
 export function hapusSesi() {
   try {
     window.localStorage.removeItem(KUNCI_SESI);
+    window.dispatchEvent(new Event("baznas-sesi-berubah"));
   } catch {
     // abaikan
   }

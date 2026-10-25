@@ -1,28 +1,10 @@
 import type { Metadata } from "next";
-import { ChartSpline } from "lucide-react";
+import { GrafikProgram } from "@/components/dashboard/grafik-program";
 import { GrafikTren } from "@/components/dashboard/grafik-tren";
 import { GrafikWilayah } from "@/components/dashboard/grafik-wilayah";
-import { KartuGrafik } from "@/components/dashboard/kartu-grafik";
 import { Shell } from "@/components/dashboard/shell";
 
 export const metadata: Metadata = { title: "Grafik Jumlah Bantuan" };
-
-/** Ruang grafik sementara; diisi oleh komponen grafik pada langkah berikutnya. */
-function SlotGrafik({ tinggi = "h-72" }: { tinggi?: string }) {
-  return (
-    <div
-      className={`flex ${tinggi} items-center justify-center rounded-xl border border-dashed border-border/70 bg-background/40`}
-    >
-      <div className="flex flex-col items-center gap-2 text-center">
-        <ChartSpline
-          className="size-5 text-muted-foreground/50"
-          aria-hidden="true"
-        />
-        <p className="text-[11px] text-muted-foreground">Menyiapkan grafik…</p>
-      </div>
-    </div>
-  );
-}
 
 export default function GrafikPage() {
   return (
@@ -56,16 +38,8 @@ export default function GrafikPage() {
         className="mt-7 grid gap-4 xl:grid-cols-3"
       >
         <GrafikTren />
-
         <GrafikWilayah />
-
-        <KartuGrafik
-          judul="Distribusi per program"
-          keterangan="Porsi dana untuk setiap jenis program bantuan."
-          className="xl:col-span-3"
-        >
-          <SlotGrafik tinggi="h-64" />
-        </KartuGrafik>
+        <GrafikProgram />
       </section>
 
       <footer className="mt-8 flex flex-wrap items-center justify-between gap-2 border-t border-border/60 pt-4 text-[11px] text-muted-foreground">

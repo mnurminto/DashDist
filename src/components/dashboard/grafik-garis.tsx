@@ -59,7 +59,7 @@ export function GrafikGaris({
   const langkahLabel = Math.max(1, Math.ceil(data.length / 8));
   const garisGrid = [0, 0.25, 0.5, 0.75, 1];
 
-  function saatGerak(e: React.MouseEvent<SVGSVGElement>) {
+  function saatGerak(e: React.PointerEvent<SVGSVGElement>) {
     if (data.length === 0) return;
     const kotak = e.currentTarget.getBoundingClientRect();
     const rasio = ((e.clientX - kotak.left) / kotak.width) * LEBAR;
@@ -72,17 +72,18 @@ export function GrafikGaris({
   const titikAktif = aktif !== null ? data[aktif] : null;
 
   return (
-    <div className="relative">
+    <div className="relative -mx-1 overflow-x-auto">
       <svg
         viewBox={`0 0 ${LEBAR} ${tinggi}`}
-        className="h-auto w-full touch-none"
+        className="h-auto w-full min-w-[560px] touch-pan-y sm:min-w-0"
         role="img"
         aria-label={
           ringkasan ??
           `Grafik garis dengan ${data.length} titik, nilai tertinggi ${format(maks)}.`
         }
-        onMouseMove={saatGerak}
-        onMouseLeave={() => setAktif(null)}
+        onPointerMove={saatGerak}
+        onPointerDown={saatGerak}
+        onPointerLeave={() => setAktif(null)}
       >
         <defs>
           <linearGradient id="garis-area" x1="0" y1="0" x2="0" y2="1">
@@ -107,7 +108,7 @@ export function GrafikGaris({
                 x={PAD.kiri - 10}
                 y={y + 3}
                 textAnchor="end"
-                fontSize={10}
+                fontSize={11}
                 fill="#8d8c8c"
               >
                 {formatRupiahRingkas(maks * (1 - rasio))}
@@ -150,7 +151,7 @@ export function GrafikGaris({
                 textAnchor={
                   i === 0 ? "start" : i === data.length - 1 ? "end" : "middle"
                 }
-                fontSize={10}
+                fontSize={11}
                 fill="#8d8c8c"
               >
                 {titik.label}

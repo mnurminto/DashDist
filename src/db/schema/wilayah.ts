@@ -1,4 +1,6 @@
+import { sql } from "drizzle-orm";
 import {
+  check,
   index,
   pgTable,
   text,
@@ -35,5 +37,11 @@ export const wilayah = pgTable(
   (table) => [
     index("wilayah_tipe_idx").on(table.tipe),
     index("wilayah_parent_idx").on(table.parentId),
+    // Halaman detail memercayai `tipe` untuk memilih tampilan, jadi nilainya
+    // dibatasi agar tidak ada tipe lain yang lolos tanpa sengaja.
+    check(
+      "wilayah_tipe_check",
+      sql`${table.tipe} in ('kecamatan', 'kota_administrasi')`,
+    ),
   ],
 );

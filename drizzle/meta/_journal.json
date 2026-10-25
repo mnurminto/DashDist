@@ -50,6 +50,13 @@
       "when": 1792928357158,
       "tag": "0006_volatile_gunslinger",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792931197735,
+      "tag": "0007_opposite_patriot",
+      "breakpoints": true
     }
   ]
 }

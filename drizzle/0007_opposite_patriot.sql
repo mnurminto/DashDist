@@ -1,0 +1,2 @@
+CREATE INDEX "penerima_nama_idx" ON "penerima_manfaat" USING btree ("nama");--> statement-breakpoint
+ALTER TABLE "wilayah" ADD CONSTRAINT "wilayah_tipe_check" CHECK ("wilayah"."tipe" in ('kecamatan', 'kota_administrasi'));

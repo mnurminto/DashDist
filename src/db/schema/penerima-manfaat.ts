@@ -1,10 +1,4 @@
-import {
-  index,
-  pgTable,
-  timestamp,
-  uuid,
-  varchar,
-} from "drizzle-orm/pg-core";
+import { index, pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 import { wilayah } from "./wilayah";
 
 /**
@@ -32,5 +26,7 @@ export const penerimaManfaat = pgTable(
   (table) => [
     index("penerima_wilayah_idx").on(table.wilayahId),
     index("penerima_kategori_idx").on(table.kategori),
+    // Pencarian nama di halaman detail wilayah memakai pencocokan awal nama.
+    index("penerima_nama_idx").on(table.nama),
   ],
 );

@@ -64,6 +64,13 @@
       "when": 1792935471058,
       "tag": "0008_right_hannibal_king",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792936197105,
+      "tag": "0009_user_role_default",
+      "breakpoints": true
     }
   ]
 }

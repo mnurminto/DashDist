@@ -71,6 +71,13 @@
       "when": 1792936197105,
       "tag": "0009_user_role_default",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792939393169,
+      "tag": "0010_clear_thunderbird",
+      "breakpoints": true
     }
   ]
 }

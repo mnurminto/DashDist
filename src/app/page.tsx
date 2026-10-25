@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Brand } from "@/components/brand";
 import { JakartaMap } from "@/components/dashboard/jakarta-map";
 import { PetaLegenda } from "@/components/dashboard/peta-legenda";
+import { StatistikUtama } from "@/components/dashboard/statistik-utama";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -45,7 +46,9 @@ export default function DashboardPage() {
           kursor ke salah satu wilayah untuk membaca angkanya.
         </p>
 
-        <Card className="mt-8 gap-4 overflow-hidden py-0">
+        <StatistikUtama />
+
+        <Card className="mt-5 gap-4 overflow-hidden py-0">
           <CardHeader className="gap-1 border-b py-5">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <CardTitle className="text-base">Sebaran per kecamatan</CardTitle>

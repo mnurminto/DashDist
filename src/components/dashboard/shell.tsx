@@ -13,6 +13,7 @@ import { Brand } from "@/components/brand";
 import { Button } from "@/components/ui/button";
 import { TERAKHIR_DIPERBARUI } from "@/lib/dashboard/mock-data";
 import { formatWaktu } from "@/lib/dashboard/format";
+import { useSesiTiruan } from "@/lib/dashboard/use-sesi";
 import { cn } from "cn";
 
 const RAIL = [
@@ -22,12 +23,18 @@ const RAIL = [
   { href: "/#wilayah", label: "Wilayah", ikon: Users },
 ] as const;
 
+const RAIL_STAF = [
+  { href: "/pengguna", label: "Daftar pengguna", ikon: Users },
+] as const;
+
 const NAV = [
   { href: "/#ringkasan", label: "Ringkasan" },
   { href: "/", label: "Peta" },
   { href: "/grafik", label: "Grafik" },
   { href: "/#filter", label: "Filter" },
 ] as const;
+
+const NAV_STAF = [{ href: "/pengguna", label: "Pengguna" }] as const;
 
 function aktifSaatIni(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
@@ -37,6 +44,9 @@ function aktifSaatIni(pathname: string, href: string) {
 /** Kerangka halaman dashboard: rail ikon, header, dan area konten. */
 export function Shell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const sesi = useSesiTiruan();
+  const rail = sesi?.peran === "staf" ? [...RAIL, ...RAIL_STAF] : RAIL;
+  const nav = sesi?.peran === "staf" ? [...NAV, ...NAV_STAF] : NAV;
 
   return (
     <div className="min-h-screen">
@@ -52,7 +62,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
           <span className="text-sm font-bold">BB</span>
         </Link>
         <nav className="mt-8 flex flex-1 flex-col items-center gap-1.5">
-          {RAIL.map((item) => {
+          {rail.map((item) => {
             const Ikon = item.ikon;
             const aktif = aktifSaatIni(pathname, item.href);
             return (
@@ -90,7 +100,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
             <Brand />
 
             <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
-              {NAV.map((item) => {
+              {nav.map((item) => {
                 const aktif = aktifSaatIni(pathname, item.href);
                 return (
                   <Link

@@ -16,6 +16,7 @@ import { RingkasanWilayah } from "@/components/dashboard/ringkasan-wilayah";
 import { PanelTerkunci } from "@/components/dashboard/panel-terkunci";
 import { StatusAkses } from "@/components/dashboard/status-akses";
 import { useSesiTiruan } from "@/lib/dashboard/use-sesi";
+import { hakSesi } from "@/lib/dashboard/auth-tiruan";
 import { StatistikUtama } from "@/components/dashboard/statistik-utama";
 import { FilterBar } from "@/components/dashboard/filter-bar";
 import { AksiLaporan } from "@/components/dashboard/aksi-laporan";
@@ -147,7 +148,11 @@ export function DashboardUtama() {
           onUbah={ubahFilter}
           onReset={reset}
         />
-        <AksiLaporan filter={filter} baris={baris} />
+        <AksiLaporan
+          filter={filter}
+          baris={baris}
+          bolehUnduh={hakSesi(sesi).bolehUnduh}
+        />
       </div>
 
       <div className="mt-5">

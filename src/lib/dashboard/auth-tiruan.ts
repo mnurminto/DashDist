@@ -9,6 +9,17 @@
 
 export type Peran = "staf" | "pimpinan";
 
+/** Hak akses per peran, dipakai untuk menyembunyikan/menonaktifkan fitur. */
+export type HakAkses = {
+  bolehUnduh: boolean;
+  bolehLihatPenerima: boolean;
+};
+
+export const HAK_PERAN: Record<Peran, HakAkses> = {
+  staf: { bolehUnduh: true, bolehLihatPenerima: true },
+  pimpinan: { bolehUnduh: false, bolehLihatPenerima: false },
+};
+
 export type PenggunaTiruan = {
   email: string;
   nama: string;
@@ -25,7 +36,7 @@ export const AKUN_TIRUAN: readonly AkunTiruan[] = [
       email: "staf@baznas.go.id",
       nama: "Rani Staf",
       peran: "staf",
-      akses: "Lihat & unduh laporan",
+      akses: "Unduh laporan & lihat penerima",
     },
     sandi: "staf123",
   },
@@ -34,11 +45,18 @@ export const AKUN_TIRUAN: readonly AkunTiruan[] = [
       email: "pimpinan@baznas.go.id",
       nama: "Pak Pimpinan",
       peran: "pimpinan",
-      akses: "Lihat ringkasan & perbandingan",
+      akses: "Ringkasan & perbandingan saja",
     },
     sandi: "pimpinan123",
   },
 ];
+
+/** Hak akses efektif untuk sebuah sesi; null berarti publik. */
+export function hakSesi(sesi: PenggunaTiruan | null): HakAkses {
+  return sesi
+    ? HAK_PERAN[sesi.peran]
+    : { bolehUnduh: false, bolehLihatPenerima: false };
+}
 
 const KUNCI_SESI = "baznas.sesi-tiruan";
 

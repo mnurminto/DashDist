@@ -79,5 +79,16 @@ export const penyaluranBantuan = pgTable(
       table.tahun,
       table.bulan,
     ),
+    // Laporan diekspor dengan kombinasi wilayah + program + tahun.
+    index("penyaluran_laporan_wilayah_program_tahun_idx").on(
+      table.wilayahId,
+      table.programId,
+      table.tahun,
+    ),
+    // Laporan per program untuk seluruh DKI (tanpa filter wilayah).
+    index("penyaluran_laporan_program_tahun_idx").on(
+      table.tahun,
+      table.programId,
+    ),
   ],
 );

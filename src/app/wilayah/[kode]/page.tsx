@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ChartSpline, Users } from "lucide-react";
+import { ArrowLeft, Users } from "lucide-react";
 import { ProfilWilayah } from "@/components/dashboard/profil-wilayah";
+import { RincianProgram } from "@/components/dashboard/rincian-program";
 import { TabsWilayah } from "@/components/dashboard/tabs-wilayah";
 import { Shell } from "@/components/dashboard/shell";
 import { StatistikUtama } from "@/components/dashboard/statistik-utama";
 import { Button } from "@/components/ui/button";
-import { KECAMATAN } from "@/lib/dashboard/mock-data";
+import { KECAMATAN, PROGRAM } from "@/lib/dashboard/mock-data";
 import {
   ringkasPerWilayah,
   ringkasTotal,
@@ -58,6 +59,26 @@ export default async function DetailWilayahPage({ params }: Props) {
     dana: total.dana,
     transaksi: total.transaksi,
   };
+
+  const rincianProgram = PROGRAM.map((program) => {
+    const subset = baris.filter((item) => item.program === program.id);
+    const dana = subset.reduce((jumlah, item) => jumlah + item.dana, 0);
+    const penerima = subset.reduce((jumlah, item) => jumlah + item.penerima, 0);
+    const transaksi = subset.reduce(
+      (jumlah, item) => jumlah + item.transaksi,
+      0,
+    );
+    return {
+      kode: program.id,
+      nama: program.nama,
+      penerima,
+      transaksi,
+      dana,
+      porsi: total.dana > 0 ? (dana / total.dana) * 100 : 0,
+    };
+  })
+    .filter((item) => item.dana > 0)
+    .sort((a, b) => b.dana - a.dana);
 
   return (
     <Shell>
@@ -118,14 +139,7 @@ export default async function DetailWilayahPage({ params }: Props) {
             {
               id: "program",
               label: "Program",
-              isi: (
-                <div className="flex h-56 items-center justify-center rounded-xl border border-dashed border-border/70 bg-background/40">
-                  <ChartSpline
-                    className="size-5 text-muted-foreground/50"
-                    aria-hidden="true"
-                  />
-                </div>
-              ),
+              isi: <RincianProgram data={rincianProgram} />,
             },
             {
               id: "penerima",

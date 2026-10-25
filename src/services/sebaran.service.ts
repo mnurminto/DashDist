@@ -52,6 +52,44 @@ function syarat(filter: SebaranQuery, ikutkanPeriode = true) {
 
 const DANA = sql<string>`coalesce(sum(${penyaluranBantuan.jumlahDana}), 0)::text`;
 
+export type KotaSebaran = {
+  kota: string;
+  wilayah: number;
+  penerima: number;
+  dana: number;
+  transaksi: number;
+  program: number;
+};
+
+/** Rekap per kota administrasi (gabungan seluruh kecamatan di bawahnya). */
+export async function getPerKota(filter: SebaranQuery): Promise<KotaSebaran[]> {
+  const baris = await db
+    .select({
+      kota: sql<string>`coalesce(${induk.nama}, ${wilayah.nama})`,
+      wilayah: sql<number>`count(distinct ${penyaluranBantuan.wilayahId})::int`,
+      penerima: sql<number>`count(distinct ${penyaluranBantuan.penerimaId})::int`,
+      dana: DANA,
+      transaksi: sql<number>`count(*)::int`,
+      program: sql<number>`count(distinct ${penyaluranBantuan.programId})::int`,
+    })
+    .from(penyaluranBantuan)
+    .innerJoin(wilayah, eq(penyaluranBantuan.wilayahId, wilayah.id))
+    .leftJoin(induk, eq(wilayah.parentId, induk.id))
+    .innerJoin(program, eq(penyaluranBantuan.programId, program.id))
+    .where(syarat(filter))
+    .groupBy(sql`coalesce(${induk.nama}, ${wilayah.nama})`)
+    .orderBy(sql`sum(${penyaluranBantuan.jumlahDana}) desc`);
+
+  return baris.map((item) => ({
+    kota: item.kota,
+    wilayah: Number(item.wilayah),
+    penerima: Number(item.penerima),
+    dana: Number(item.dana),
+    transaksi: Number(item.transaksi),
+    program: Number(item.program),
+  }));
+}
+
 /**
  * Rekap penyaluran bantuan untuk dashboard publik.
  *

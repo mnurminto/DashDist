@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { BandingkanWilayah } from "@/components/dashboard/bandingkan-wilayah";
+import { PenerimaTerkunci } from "@/components/dashboard/penerima-terkunci";
 import { ProfilWilayah } from "@/components/dashboard/profil-wilayah";
 import { RincianProgram } from "@/components/dashboard/rincian-program";
 import { TabelPenerima } from "@/components/dashboard/tabel-penerima";
@@ -12,6 +13,7 @@ import { StatistikUtama } from "@/components/dashboard/statistik-utama";
 import { Button } from "@/components/ui/button";
 import { KECAMATAN, PROGRAM } from "@/lib/dashboard/mock-data";
 import { daftarPenerimaContoh } from "@/lib/dashboard/penerima-contoh";
+import { getSession } from "@/lib/session";
 import {
   ringkasPerWilayah,
   ringkasTotal,
@@ -38,6 +40,9 @@ export default async function DetailWilayahPage({ params }: Props) {
   const { kode } = await params;
   const meta = cariWilayah(kode);
   if (!meta) notFound();
+
+  // Rincian penerima hanya untuk pengguna yang sudah masuk.
+  const sesi = await getSession();
 
   const baris = saring({ wilayah: kode, program: "semua", periode: "semua" });
   const total = ringkasTotal(baris);
@@ -167,7 +172,11 @@ export default async function DetailWilayahPage({ params }: Props) {
             {
               id: "penerima",
               label: "Penerima",
-              isi: <TabelPenerima data={daftarPenerimaContoh(kode)} />,
+              isi: sesi ? (
+                <TabelPenerima data={daftarPenerimaContoh(kode)} />
+              ) : (
+                <PenerimaTerkunci />
+              ),
             },
             {
               id: "bandingkan",

@@ -15,6 +15,8 @@ type Kartu = {
   nilai: string;
   keterangan: string;
   ikon: LucideIcon;
+  /** Data tren opsional (dana per tahun, urut lama → baru). */
+  tren?: { nilai: number[]; label: string[] };
 };
 
 type Props = {
@@ -26,6 +28,8 @@ type Props = {
   adaFilter: boolean;
   /** Kalau diisi, tampilkan tombol untuk kembali ke ringkasan DKI. */
   onBersihkan?: () => void;
+  /** Dana per tahun untuk sparkline di kartu dana. */
+  trenDana?: { nilai: number[]; label: string[] };
 };
 
 /** Kartu ringkasan angka: total DKI Jakarta, atau satu wilayah terpilih. */
@@ -34,6 +38,7 @@ export function StatistikUtama({
   wilayah,
   adaFilter,
   onBersihkan,
+  trenDana,
 }: Props) {
   const jumlahKota = new Set(KECAMATAN.map((kecamatan) => kecamatan.kota)).size;
 
@@ -59,6 +64,7 @@ export function StatistikUtama({
           ? `${formatRupiah(Math.round(dana / penerima))} per penerima`
           : "belum ada data pada filter ini",
       ikon: Banknote,
+      tren: trenDana,
     },
     {
       label: "Program berjalan",
@@ -146,6 +152,15 @@ export function StatistikUtama({
               <p className="mt-2 text-xs leading-5 text-muted-foreground">
                 {item.keterangan}
               </p>
+              {item.tren && item.tren.nilai.some((nilai) => nilai > 0) && (
+                <div className="mt-3 flex items-end justify-between gap-3">
+                  <Sparkline nilai={item.tren.nilai} label={item.tren.label} />
+                  <span className="text-[10px] text-muted-foreground/80 tabular-nums">
+                    {item.tren.label[0]}–
+                    {item.tren.label[item.tren.label.length - 1]}
+                  </span>
+                </div>
+              )}
               <span
                 aria-hidden="true"
                 className="pointer-events-none absolute -right-8 -bottom-10 size-28 rounded-full bg-primary/10 blur-2xl"
@@ -155,5 +170,63 @@ export function StatistikUtama({
         })}
       </ul>
     </section>
+  );
+}
+
+/** Grafik mini dana per tahun, dipakai di kartu "Dana tersalurkan". */
+function Sparkline({ nilai, label }: { nilai: number[]; label: string[] }) {
+  const lebar = 96;
+  const tinggi = 30;
+  const pad = 3;
+  const maks = Math.max(...nilai, 1);
+  const min = Math.min(...nilai);
+  const rentang = Math.max(maks - min, 1);
+
+  const titik = nilai.map((v, i) => {
+    const x = pad + (i * (lebar - pad * 2)) / Math.max(nilai.length - 1, 1);
+    const y = tinggi - pad - ((v - min) / rentang) * (tinggi - pad * 2);
+    return [x, y] as const;
+  });
+
+  const garis = titik
+    .map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(1)} ${y.toFixed(1)}`)
+    .join(" ");
+  const area = `${garis} L${(lebar - pad).toFixed(1)} ${tinggi} L${pad} ${tinggi} Z`;
+  const ringkas = label
+    .map((tahun, i) => `${tahun}: ${formatRupiah(nilai[i] ?? 0)}`)
+    .join(", ");
+
+  return (
+    <svg
+      viewBox={`0 0 ${lebar} ${tinggi}`}
+      className="h-8 w-24 overflow-visible"
+      role="img"
+      aria-label={`Tren dana tahunan — ${ringkas}`}
+    >
+      <defs>
+        <linearGradient id="tren-dana" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#e0cf8a" stopOpacity="0.5" />
+          <stop offset="100%" stopColor="#e0cf8a" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={area} fill="url(#tren-dana)" />
+      <path
+        d={garis}
+        fill="none"
+        stroke="#d9c77c"
+        strokeWidth={1.6}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {titik.map(([x, y], i) => (
+        <circle
+          key={i}
+          cx={x}
+          cy={y}
+          r={i === titik.length - 1 ? 2.2 : 1.5}
+          fill="#e9dfae"
+        />
+      ))}
+    </svg>
   );
 }

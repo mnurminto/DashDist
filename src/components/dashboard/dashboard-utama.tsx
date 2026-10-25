@@ -22,6 +22,7 @@ import {
   ringkasPerWilayah,
   ringkasTotal,
   saring,
+  TAHUN_TERSEDIA,
   type FilterState,
 } from "@/lib/dashboard/penyaluran";
 
@@ -41,6 +42,25 @@ export function DashboardUtama() {
   const baris = useMemo(() => saring(filter), [filter]);
   const total = useMemo(() => ringkasTotal(baris), [baris]);
   const perWilayah = useMemo(() => ringkasPerWilayah(baris), [baris]);
+
+  // Tren dana per tahun (2024 → 2026) mengikuti wilayah & program terpilih,
+  // tetapi tidak ikut filter periode supaya konteksnya tetap terlihat.
+  const trenDana = useMemo(() => {
+    const tahun = [...TAHUN_TERSEDIA].reverse();
+    return {
+      label: [...tahun],
+      nilai: tahun.map(
+        (periode) =>
+          ringkasTotal(
+            saring({
+              wilayah: filter.wilayah,
+              program: filter.program,
+              periode,
+            }),
+          ).dana,
+      ),
+    };
+  }, [filter.wilayah, filter.program]);
 
   const kodeAktif = filter.wilayah !== "semua" ? filter.wilayah : dipilih;
   const wilayah = kodeAktif ? (perWilayah.get(kodeAktif) ?? null) : null;
@@ -107,6 +127,7 @@ export function DashboardUtama() {
           wilayah={wilayah}
           adaFilter={filter.program !== "semua" || filter.periode !== "semua"}
           onBersihkan={() => pilihWilayah(null)}
+          trenDana={trenDana}
         />
       </div>
 
@@ -125,7 +146,7 @@ export function DashboardUtama() {
             </div>
             <CardDescription className="text-xs">
               {wilayah
-                ? `${wilayah.kota} · klik wilayah lain untuk berganti`
+                ? `DKI Jakarta › ${wilayah.kota} › Kecamatan ${wilayah.nama}`
                 : total.wilayah === 0
                   ? "Tidak ada data untuk kombinasi filter ini."
                   : `${total.wilayah} kecamatan memiliki penyaluran pada filter ini.`}

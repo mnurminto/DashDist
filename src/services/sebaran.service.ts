@@ -57,6 +57,60 @@ function syarat(filter: SebaranQuery, ikutkanPeriode = true) {
 
 const DANA = sql<string>`coalesce(sum(${penyaluranBantuan.jumlahDana}), 0)::text`;
 
+export type TitikBulanan = {
+  tahun: number;
+  bulan: number;
+  /** Label pendek, mis. "Agu 2025". */
+  label: string;
+  dana: number;
+  penerima: number;
+  transaksi: number;
+};
+
+function labelBulan(tahun: number, bulan: number) {
+  const namaBulan = new Intl.DateTimeFormat("id-ID", {
+    month: "short",
+    timeZone: "UTC",
+  }).format(new Date(Date.UTC(tahun, bulan - 1, 1)));
+  return `${namaBulan} ${tahun}`;
+}
+
+/** Deret dana per bulan (urut lama → baru) untuk grafik tren. */
+export async function getBulanan(
+  filter: SebaranQuery,
+): Promise<TitikBulanan[]> {
+  const baris = await db
+    .select({
+      tahun: penyaluranBantuan.tahun,
+      bulan: penyaluranBantuan.bulan,
+      dana: DANA,
+      penerima: sql<number>`count(distinct ${penyaluranBantuan.penerimaId})::int`,
+      transaksi: sql<number>`count(*)::int`,
+    })
+    .from(penyaluranBantuan)
+    .innerJoin(wilayah, eq(penyaluranBantuan.wilayahId, wilayah.id))
+    .leftJoin(induk, eq(wilayah.parentId, induk.id))
+    .innerJoin(program, eq(penyaluranBantuan.programId, program.id))
+    .where(syarat(filter))
+    .groupBy(penyaluranBantuan.tahun, penyaluranBantuan.bulan)
+    .orderBy(penyaluranBantuan.tahun, penyaluranBantuan.bulan);
+
+  return baris
+    .filter((item) => item.tahun !== null && item.bulan !== null)
+    .map((item) => {
+      const tahun = Number(item.tahun);
+      const bulan = Number(item.bulan);
+      return {
+        tahun,
+        bulan,
+        label: labelBulan(tahun, bulan),
+        dana: Number(item.dana),
+        penerima: Number(item.penerima),
+        transaksi: Number(item.transaksi),
+      };
+    });
+}
+
 export type KotaSebaran = {
   kota: string;
   wilayah: number;

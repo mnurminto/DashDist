@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ChartSpline, Users } from "lucide-react";
-import { KartuGrafik } from "@/components/dashboard/kartu-grafik";
 import { ProfilWilayah } from "@/components/dashboard/profil-wilayah";
+import { TabsWilayah } from "@/components/dashboard/tabs-wilayah";
 import { Shell } from "@/components/dashboard/shell";
 import { StatistikUtama } from "@/components/dashboard/statistik-utama";
 import { Button } from "@/components/ui/button";
@@ -106,51 +106,53 @@ export default async function DetailWilayahPage({ params }: Props) {
         <StatistikUtama total={total} wilayah={ringkas} adaFilter={false} />
       </div>
 
-      <div className="mt-5 grid gap-4 xl:grid-cols-3">
-        <KartuGrafik
-          judul="Profil ringkas wilayah"
-          keterangan="Gambaran singkat kondisi penyaluran."
-        >
-          <ProfilWilayah data={profil} />
-        </KartuGrafik>
-
-        <KartuGrafik
-          judul="Rincian bantuan per program"
-          keterangan="Program apa saja yang masuk ke wilayah ini."
-          className="xl:col-span-2"
-        >
-          <div className="flex h-44 items-center justify-center rounded-xl border border-dashed border-border/70 bg-background/40">
-            <ChartSpline
-              className="size-5 text-muted-foreground/50"
-              aria-hidden="true"
-            />
-          </div>
-        </KartuGrafik>
-
-        <KartuGrafik
-          judul="Daftar penerima"
-          keterangan="Penerima bantuan di wilayah ini."
-          className="xl:col-span-2"
-        >
-          <div className="flex h-44 items-center justify-center rounded-xl border border-dashed border-border/70 bg-background/40">
-            <Users
-              className="size-5 text-muted-foreground/50"
-              aria-hidden="true"
-            />
-          </div>
-        </KartuGrafik>
-
-        <KartuGrafik
-          judul="Bandingkan wilayah"
-          keterangan="Posisi wilayah ini dibanding kecamatan lain."
-        >
-          <div className="flex h-44 items-center justify-center rounded-xl border border-dashed border-border/70 bg-background/40">
-            <p className="text-[11px] text-muted-foreground">
-              Menyiapkan perbandingan…
-            </p>
-          </div>
-        </KartuGrafik>
-      </div>
+      <section className="mt-5 rounded-2xl border border-border bg-card/60">
+        <TabsWilayah
+          awal="ringkasan"
+          tab={[
+            {
+              id: "ringkasan",
+              label: "Ringkasan",
+              isi: <ProfilWilayah data={profil} />,
+            },
+            {
+              id: "program",
+              label: "Program",
+              isi: (
+                <div className="flex h-56 items-center justify-center rounded-xl border border-dashed border-border/70 bg-background/40">
+                  <ChartSpline
+                    className="size-5 text-muted-foreground/50"
+                    aria-hidden="true"
+                  />
+                </div>
+              ),
+            },
+            {
+              id: "penerima",
+              label: "Penerima",
+              isi: (
+                <div className="flex h-56 items-center justify-center rounded-xl border border-dashed border-border/70 bg-background/40">
+                  <Users
+                    className="size-5 text-muted-foreground/50"
+                    aria-hidden="true"
+                  />
+                </div>
+              ),
+            },
+            {
+              id: "bandingkan",
+              label: "Bandingkan",
+              isi: (
+                <div className="flex h-56 items-center justify-center rounded-xl border border-dashed border-border/70 bg-background/40">
+                  <p className="text-[11px] text-muted-foreground">
+                    Menyiapkan perbandingan…
+                  </p>
+                </div>
+              ),
+            },
+          ]}
+        />
+      </section>
 
       <footer className="mt-8 flex flex-wrap items-center justify-between gap-2 border-t border-border/60 pt-4 text-[11px] text-muted-foreground">
         <span>Batas wilayah: BPS via HDX (ODbL)</span>

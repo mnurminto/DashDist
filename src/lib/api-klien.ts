@@ -12,6 +12,8 @@ export type GalatApi = {
   status: number;
   kode: string;
   pesan: string;
+  /** Petunjuk langkah berikutnya dari server (401/403). */
+  petunjuk?: string;
 };
 
 export type HasilApi<T> =
@@ -26,11 +28,14 @@ async function bacaJson(res: Response): Promise<unknown> {
 }
 
 function galatDari(status: number, isi: unknown): GalatApi {
-  const error = (isi as { error?: { code?: string; message?: string } })?.error;
+  const error = (
+    isi as { error?: { code?: string; message?: string; hint?: string } }
+  )?.error;
   return {
     status,
     kode: error?.code ?? "GALAT_TIDAK_DIKENAL",
     pesan: error?.message ?? "Permintaan gagal. Coba lagi.",
+    ...(error?.hint ? { petunjuk: error.hint } : {}),
   };
 }
 

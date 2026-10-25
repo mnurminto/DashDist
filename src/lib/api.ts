@@ -46,7 +46,22 @@ export async function withApiSession(
   } catch (error) {
     if (error instanceof ApiError) {
       response = Response.json(
-        { error: { code: error.code, message: error.message } },
+        {
+          error: {
+            code: error.code,
+            message: error.message,
+            // Petunjuk singkat supaya UI bisa menampilkan langkah berikutnya,
+            // bukan sekadar "ditolak".
+            ...(error.status === 401
+              ? { hint: "Masuk dengan akun yang punya akses, lalu coba lagi." }
+              : {}),
+            ...(error.status === 403
+              ? {
+                  hint: "Peran akun ini tidak mencakup data tersebut. Hubungi admin bila perlu.",
+                }
+              : {}),
+          },
+        },
         { status: error.status },
       );
     } else if (error instanceof ZodError) {

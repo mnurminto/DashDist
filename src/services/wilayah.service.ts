@@ -147,6 +147,71 @@ function syaratDetail(wilayahId: string, opsi: OpsiDetail, periode = true) {
   return and(...daftar);
 }
 
+export type ProgramWilayah = {
+  wilayah: { kode: string; nama: string; kota: string };
+  program: {
+    kode: string;
+    nama: string;
+    penerima: number;
+    transaksi: number;
+    dana: number;
+    /** Persentase dana program terhadap total wilayah. */
+    porsi: number;
+  }[];
+  total: number;
+};
+
+/** Rincian dana per program di satu wilayah, urut terbesar. */
+export async function getProgramWilayah(
+  kode: string,
+): Promise<ProgramWilayah | null> {
+  const [data] = await db
+    .select({
+      id: wilayah.id,
+      kode: wilayah.kode,
+      nama: wilayah.nama,
+      kota: sql<string>`coalesce(${induk.nama}, ${wilayah.nama})`,
+    })
+    .from(wilayah)
+    .leftJoin(induk, eq(wilayah.parentId, induk.id))
+    .where(eq(wilayah.kode, kode))
+    .limit(1);
+
+  if (!data) return null;
+
+  const baris = await db
+    .select({
+      kode: program.kode,
+      nama: program.nama,
+      penerima: sql<number>`count(distinct ${penyaluranBantuan.penerimaId})::int`,
+      transaksi: sql<number>`count(*)::int`,
+      dana: DANA,
+    })
+    .from(penyaluranBantuan)
+    .innerJoin(program, eq(penyaluranBantuan.programId, program.id))
+    .where(eq(penyaluranBantuan.wilayahId, data.id))
+    .groupBy(program.kode, program.nama)
+    .orderBy(sql`sum(${penyaluranBantuan.jumlahDana}) desc`);
+
+  const total = baris.reduce((jumlah, item) => jumlah + Number(item.dana), 0);
+
+  return {
+    wilayah: { kode: data.kode, nama: data.nama, kota: data.kota },
+    program: baris.map((item) => {
+      const dana = Number(item.dana);
+      return {
+        kode: item.kode,
+        nama: item.nama,
+        penerima: Number(item.penerima),
+        transaksi: Number(item.transaksi),
+        dana,
+        porsi: total > 0 ? (dana / total) * 100 : 0,
+      };
+    }),
+    total,
+  };
+}
+
 /**
  * Ringkasan satu wilayah: angka utama, rincian per program, per kategori
  * penerima, dan tren tahunan. Mengembalikan null kalau kode tidak dikenal.

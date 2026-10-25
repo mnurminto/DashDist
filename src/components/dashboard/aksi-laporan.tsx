@@ -1,29 +1,60 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Check, Download, FileText, Share2 } from "lucide-react";
+import {
+  Check,
+  Download,
+  FileSpreadsheet,
+  FileText,
+  Share2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { KECAMATAN, PROGRAM } from "@/lib/dashboard/mock-data";
 import {
   bacaFilterDariQuery,
   buatCsv,
+  buatExcelXml,
   filterKeQuery,
   namaBerkasCsv,
+  namaBerkasExcel,
   ringkasEkspor,
   unduhCsv,
+  unduhExcel,
 } from "@/lib/dashboard/ekspor";
-import type { BarisPenyaluran, FilterState } from "@/lib/dashboard/penyaluran";
+import {
+  ringkasTotal,
+  type BarisPenyaluran,
+  type FilterState,
+} from "@/lib/dashboard/penyaluran";
 
 type Props = {
   filter: FilterState;
   baris: readonly BarisPenyaluran[];
 };
 
-type Pesan = "unduh" | "salin" | "bagi" | "gagal" | null;
+type Pesan = "unduh" | "excel" | "salin" | "bagi" | "gagal" | null;
 
-/** Tombol unduh CSV dan bagikan tautan filter di dashboard. */
+/** Tombol unduh CSV/Excel, unduh PDF, dan bagikan tautan filter. */
 export function AksiLaporan({ filter, baris }: Props) {
   const [pesan, setPesan] = useState<Pesan>(null);
+
+  const total = useMemo(() => ringkasTotal(baris), [baris]);
+
+  const label = {
+    wilayah:
+      filter.wilayah === "semua"
+        ? "Seluruh DKI Jakarta"
+        : (KECAMATAN.find((item) => item.code === filter.wilayah)?.nama ??
+          filter.wilayah),
+    program:
+      filter.program === "semua"
+        ? "Semua program"
+        : (PROGRAM.find((item) => item.id === filter.program)?.nama ??
+          filter.program),
+    periode:
+      filter.periode === "semua" ? "Semua tahun" : `Tahun ${filter.periode}`,
+  };
 
   function tandai(nilai: Pesan) {
     setPesan(nilai);
@@ -38,6 +69,35 @@ export function AksiLaporan({ filter, baris }: Props) {
     }
     unduhCsv(namaBerkasCsv(filter), buatCsv(rows));
     tandai("unduh");
+  }
+
+  function unduhSpreadsheet() {
+    const rows = ringkasEkspor(baris);
+    if (rows.length === 0) {
+      tandai("gagal");
+      return;
+    }
+
+    unduhExcel(
+      namaBerkasExcel(filter),
+      buatExcelXml(
+        {
+          wilayah: label.wilayah,
+          program: label.program,
+          periode: label.periode,
+          penerima: total.penerima,
+          dana: total.dana,
+          programAktif: total.program,
+          transaksi: total.transaksi,
+          dicetak: new Intl.DateTimeFormat("id-ID", {
+            dateStyle: "long",
+            timeStyle: "short",
+          }).format(new Date()),
+        },
+        rows,
+      ),
+    );
+    tandai("excel");
   }
 
   async function bagikan() {
@@ -67,7 +127,6 @@ export function AksiLaporan({ filter, baris }: Props) {
     }
   }
 
-  /** Tautan yang bisa dibuka ulang dari bilah alamat. */
   const pratinjauTautan = filterKeQuery(filter);
   const tautanLaporan = pratinjauTautan
     ? `/laporan?${pratinjauTautan}&cetak=1`
@@ -79,11 +138,21 @@ export function AksiLaporan({ filter, baris }: Props) {
         type="button"
         variant="outline"
         size="sm"
+        onClick={unduhSpreadsheet}
+        title={`Unduh ${ringkasEkspor(baris).length} baris sebagai Excel`}
+      >
+        <FileSpreadsheet aria-hidden="true" />
+        Excel
+      </Button>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
         onClick={unduh}
         title={`Unduh ${ringkasEkspor(baris).length} baris sebagai CSV`}
       >
         <Download aria-hidden="true" />
-        Unduh CSV
+        CSV
       </Button>
       <Button asChild variant="outline" size="sm">
         <Link
@@ -93,7 +162,7 @@ export function AksiLaporan({ filter, baris }: Props) {
           title="Buka laporan siap cetak, lalu pilih Simpan sebagai PDF"
         >
           <FileText aria-hidden="true" />
-          Unduh PDF
+          PDF
         </Link>
       </Button>
       <Button type="button" variant="outline" size="sm" onClick={bagikan}>
@@ -112,6 +181,12 @@ export function AksiLaporan({ filter, baris }: Props) {
             CSV diunduh
           </>
         )}
+        {pesan === "excel" && (
+          <>
+            <Check className="size-3 text-primary" aria-hidden="true" />
+            Excel diunduh
+          </>
+        )}
         {pesan === "salin" && (
           <>
             <Check className="size-3 text-primary" aria-hidden="true" />
@@ -124,7 +199,7 @@ export function AksiLaporan({ filter, baris }: Props) {
             Tautan dibagikan
           </>
         )}
-        {pesan === "gagal" && "Tidak ada data untuk dibagikan"}
+        {pesan === "gagal" && "Tidak ada data untuk diunduh"}
         {pesan === null && pratinjauTautan && (
           <span className="hidden sm:inline">
             Filter aktif ikut tersimpan di tautan

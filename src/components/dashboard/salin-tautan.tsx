@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, Copy, Link2, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Toast } from "@/components/dashboard/toast";
 import { salinKeClipboard } from "@/lib/dashboard/clipboard";
 
 type Props = {
@@ -27,6 +28,21 @@ export function SalinTautan({ kueri }: Props) {
   const [status, setStatus] = useState<Status>("siap");
   const [terbuka, setTerbuka] = useState(false);
   const [tautan, setTautan] = useState("");
+  const [toast, setToast] = useState<string | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      if (timer.current) clearTimeout(timer.current);
+    },
+    [],
+  );
+
+  function munculkanToast(pesan: string) {
+    if (timer.current) clearTimeout(timer.current);
+    setToast(pesan);
+    timer.current = setTimeout(() => setToast(null), 3000);
+  }
 
   async function salin() {
     const url = tautanSekarang(kueri);
@@ -34,6 +50,9 @@ export function SalinTautan({ kueri }: Props) {
     const berhasil = await salinKeClipboard(url);
     setStatus(berhasil ? "tersalin" : "gagal");
     setTerbuka(true);
+    munculkanToast(
+      berhasil ? "Tautan dashboard disalin" : "Gagal menyalin, salin manual",
+    );
   }
 
   async function bagikan() {
@@ -48,6 +67,7 @@ export function SalinTautan({ kueri }: Props) {
           url,
         });
         setStatus("tersalin");
+        munculkanToast("Tautan dashboard dibagikan");
         return;
       } catch {
         // Dialog dibatalkan; jatuh ke salin.
@@ -56,6 +76,9 @@ export function SalinTautan({ kueri }: Props) {
     const berhasil = await salinKeClipboard(url);
     setStatus(berhasil ? "tersalin" : "gagal");
     setTerbuka(true);
+    munculkanToast(
+      berhasil ? "Tautan dashboard disalin" : "Gagal menyalin, salin manual",
+    );
   }
 
   return (
@@ -85,7 +108,7 @@ export function SalinTautan({ kueri }: Props) {
       </div>
 
       {terbuka && (
-        <div className="flex w-full flex-wrap items-center gap-2 rounded-lg border border-border bg-secondary/30 p-2">
+        <div className="flex w-full min-w-[20rem] max-w-[27rem] flex-wrap items-center gap-2 rounded-lg border border-border bg-secondary/30 p-2">
           <Link2
             className="size-3.5 shrink-0 text-muted-foreground"
             aria-hidden="true"
@@ -95,10 +118,13 @@ export function SalinTautan({ kueri }: Props) {
             value={tautan}
             aria-label="Tautan dashboard dengan filter aktif"
             onFocus={(e) => e.currentTarget.select()}
+            title={tautan}
             className="h-8 min-w-0 flex-1 border-border/70 bg-[#141415] text-[11px]"
           />
         </div>
       )}
+
+      <Toast pesan={toast} jenis={status === "gagal" ? "gagal" : "sukses"} />
     </div>
   );
 }

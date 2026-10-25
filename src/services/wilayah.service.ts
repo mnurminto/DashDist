@@ -147,6 +147,88 @@ function syaratDetail(wilayahId: string, opsi: OpsiDetail, periode = true) {
   return and(...daftar);
 }
 
+export type BandingkanWilayah = {
+  wilayah: { kode: string; nama: string; kota: string };
+  dana: number;
+  rataRata: number;
+  /** Selisih dana wilayah terhadap rata-rata DKI, dalam persen. */
+  selisihPersen: number;
+  peringkat: number;
+  totalWilayah: number;
+  pembanding: {
+    kode: string;
+    nama: string;
+    dana: number;
+    aktif: boolean;
+  }[];
+};
+
+/**
+ * Bandingkan satu wilayah dengan kecamatan lain dan rata-rata DKI.
+ * `limit` menentukan berapa wilayah teratas yang ikut ditampilkan.
+ */
+export async function getBandingkanWilayah(
+  kode: string,
+  limit = 5,
+): Promise<BandingkanWilayah | null> {
+  const [data] = await db
+    .select({
+      id: wilayah.id,
+      kode: wilayah.kode,
+      nama: wilayah.nama,
+      kota: sql<string>`coalesce(${induk.nama}, ${wilayah.nama})`,
+    })
+    .from(wilayah)
+    .leftJoin(induk, eq(wilayah.parentId, induk.id))
+    .where(eq(wilayah.kode, kode))
+    .limit(1);
+
+  if (!data) return null;
+
+  const semua = await db
+    .select({
+      kode: wilayah.kode,
+      nama: wilayah.nama,
+      dana: DANA,
+    })
+    .from(penyaluranBantuan)
+    .innerJoin(wilayah, eq(penyaluranBantuan.wilayahId, wilayah.id))
+    .groupBy(wilayah.kode, wilayah.nama)
+    .orderBy(sql`sum(${penyaluranBantuan.jumlahDana}) desc`);
+
+  const daftar = semua.map((item) => ({
+    kode: item.kode,
+    nama: item.nama,
+    dana: Number(item.dana),
+  }));
+
+  const posisi = daftar.findIndex((item) => item.kode === data.kode);
+  const dana = posisi >= 0 ? daftar[posisi].dana : 0;
+  const totalDki = daftar.reduce((jumlah, item) => jumlah + item.dana, 0);
+  const rataRata = daftar.length > 0 ? totalDki / daftar.length : 0;
+
+  // Lima teratas, ditambah wilayah ini bila belum masuk daftar.
+  const teratas = daftar.slice(0, limit);
+  const sudahAda = teratas.some((item) => item.kode === data.kode);
+  const pembanding = (
+    sudahAda
+      ? teratas
+      : [...teratas, { kode: data.kode, nama: data.nama, dana }]
+  )
+    .sort((a, b) => b.dana - a.dana)
+    .map((item) => ({ ...item, aktif: item.kode === data.kode }));
+
+  return {
+    wilayah: { kode: data.kode, nama: data.nama, kota: data.kota },
+    dana,
+    rataRata,
+    selisihPersen: rataRata > 0 ? ((dana - rataRata) / rataRata) * 100 : 0,
+    peringkat: posisi + 1,
+    totalWilayah: daftar.length,
+    pembanding,
+  };
+}
+
 export type ProgramWilayah = {
   wilayah: { kode: string; nama: string; kota: string };
   program: {

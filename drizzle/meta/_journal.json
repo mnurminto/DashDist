@@ -36,6 +36,13 @@
       "when": 1792913667275,
       "tag": "0004_volatile_red_hulk",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792916958684,
+      "tag": "0005_small_christian_walker",
+      "breakpoints": true
     }
   ]
 }

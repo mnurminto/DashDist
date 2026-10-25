@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
   date,
   index,
@@ -46,5 +47,13 @@ export const penyaluranBantuan = pgTable(
     index("penyaluran_program_tanggal_idx").on(table.programId, table.tanggal),
     index("penyaluran_tanggal_idx").on(table.tanggal),
     index("penyaluran_penerima_idx").on(table.penerimaId),
+    // Filter dashboard bekerja per tahun (extract year) dan sering
+    // mengombinasikan program + wilayah, jadi keduanya diberi indeks khusus.
+    index("penyaluran_tahun_idx").on(sql`extract(year from ${table.tanggal})`),
+    index("penyaluran_program_wilayah_idx").on(
+      table.programId,
+      table.wilayahId,
+      table.tanggal,
+    ),
   ],
 );

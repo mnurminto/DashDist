@@ -1,0 +1,2 @@
+CREATE INDEX "penyaluran_tahun_idx" ON "penyaluran_bantuan" USING btree (extract(year from "tanggal"));--> statement-breakpoint
+CREATE INDEX "penyaluran_program_wilayah_idx" ON "penyaluran_bantuan" USING btree ("program_id","wilayah_id","tanggal");

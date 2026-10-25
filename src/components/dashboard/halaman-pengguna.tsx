@@ -1,17 +1,84 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { LockKeyhole, ShieldAlert, Users } from "lucide-react";
+import { LockKeyhole, Plus, ShieldAlert, Users } from "lucide-react";
 import { DaftarPengguna } from "@/components/dashboard/daftar-pengguna";
+import { FormPengguna } from "@/components/dashboard/form-pengguna";
 import { Shell } from "@/components/dashboard/shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PENGGUNA_ADMIN } from "@/lib/dashboard/pengguna-contoh";
+import {
+  PENGGUNA_ADMIN,
+  type PenggunaAdmin,
+} from "@/lib/dashboard/pengguna-contoh";
 import { useSesiTiruan } from "@/lib/dashboard/use-sesi";
 
-/** Halaman admin: daftar pengguna. Hanya peran staf yang boleh membuka. */
+const KUNCI = "baznas.pengguna-tiruan";
+
+function bacaTersimpan(): PenggunaAdmin[] | null {
+  try {
+    const mentah = window.localStorage.getItem(KUNCI);
+    if (!mentah) return null;
+    const data = JSON.parse(mentah) as PenggunaAdmin[];
+    return Array.isArray(data) && data.length > 0 ? data : null;
+  } catch {
+    return null;
+  }
+}
+
+function simpan(daftar: PenggunaAdmin[]) {
+  try {
+    window.localStorage.setItem(KUNCI, JSON.stringify(daftar));
+  } catch {
+    // abaikan; data tetap ada sampai halaman dimuat ulang
+  }
+}
+
+/** Halaman admin: daftar pengguna + form tambah/ubah. Khusus peran staf. */
 export function HalamanPengguna() {
   const sesi = useSesiTiruan();
+  const [daftar, setDaftar] = useState<PenggunaAdmin[]>([...PENGGUNA_ADMIN]);
+  const [form, setForm] = useState<{ awal: PenggunaAdmin | null } | null>(null);
+
+  useEffect(() => {
+    const tersimpan = bacaTersimpan();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- muat data contoh sekali dari localStorage
+    if (tersimpan) setDaftar(tersimpan);
+  }, []);
+
+  function simpanData(
+    data: Omit<PenggunaAdmin, "id" | "terakhirMasuk"> & { id?: string },
+  ) {
+    setDaftar((sebelumnya) => {
+      const berikutnya = data.id
+        ? sebelumnya.map((item) =>
+            item.id === data.id
+              ? {
+                  ...item,
+                  nama: data.nama,
+                  email: data.email,
+                  peran: data.peran,
+                  aktif: data.aktif,
+                }
+              : item,
+          )
+        : [
+            ...sebelumnya,
+            {
+              id: `u-${Date.now()}`,
+              nama: data.nama,
+              email: data.email,
+              peran: data.peran,
+              aktif: data.aktif,
+              terakhirMasuk: null,
+            },
+          ];
+      simpan(berikutnya);
+      return berikutnya;
+    });
+    setForm(null);
+  }
 
   return (
     <Shell>
@@ -28,9 +95,17 @@ export function HalamanPengguna() {
             statusnya.
           </p>
         </div>
-        <span className="rounded-full border border-border bg-card/60 px-3 py-1.5 text-[11px] text-muted-foreground">
-          Data contoh
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="rounded-full border border-border bg-card/60 px-3 py-1.5 text-[11px] text-muted-foreground">
+            Data contoh
+          </span>
+          {sesi?.peran === "staf" && (
+            <Button size="sm" onClick={() => setForm({ awal: null })}>
+              <Plus aria-hidden="true" />
+              Tambah pengguna
+            </Button>
+          )}
+        </div>
       </div>
 
       <Card className="mt-6 gap-3 rounded-2xl border-border bg-card/60 py-0">
@@ -83,9 +158,23 @@ export function HalamanPengguna() {
             </div>
           )}
 
-          {sesi?.peran === "staf" && <DaftarPengguna data={PENGGUNA_ADMIN} />}
+          {sesi?.peran === "staf" && (
+            <DaftarPengguna
+              data={daftar}
+              onUbah={(awal) => setForm({ awal })}
+            />
+          )}
         </CardContent>
       </Card>
+
+      {form && (
+        <FormPengguna
+          awal={form.awal}
+          emailTerpakai={daftar.map((item) => item.email)}
+          onSimpan={simpanData}
+          onTutup={() => setForm(null)}
+        />
+      )}
     </Shell>
   );
 }

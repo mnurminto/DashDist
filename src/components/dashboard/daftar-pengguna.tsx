@@ -10,7 +10,11 @@ import {
 import { formatAngka } from "@/lib/dashboard/format";
 import { cn } from "cn";
 
-type Props = { data: readonly PenggunaAdmin[] };
+type Props = {
+  data: readonly PenggunaAdmin[];
+  /** Bila diisi, tiap baris menampilkan tombol ubah. */
+  onUbah?: (pengguna: PenggunaAdmin) => void;
+};
 
 const SEMUA = "semua";
 
@@ -25,7 +29,7 @@ function formatTanggal(iso: string | null) {
 }
 
 /** Tabel pengguna dengan pencarian nama/email dan filter peran. */
-export function DaftarPengguna({ data }: Props) {
+export function DaftarPengguna({ data, onUbah }: Props) {
   const [cari, setCari] = useState("");
   const [peran, setPeran] = useState<string>(SEMUA);
 
@@ -95,9 +99,14 @@ export function DaftarPengguna({ data }: Props) {
               <th scope="col" className="py-2 pr-3 font-medium">
                 Status
               </th>
-              <th scope="col" className="py-2 font-medium">
+              <th scope="col" className="py-2 pr-3 font-medium">
                 Terakhir masuk
               </th>
+              {onUbah && (
+                <th scope="col" className="py-2 text-right font-medium">
+                  Aksi
+                </th>
+              )}
             </tr>
           </thead>
           <tbody className="divide-y divide-border/50">
@@ -131,9 +140,20 @@ export function DaftarPengguna({ data }: Props) {
                     {item.aktif ? "Aktif" : "Nonaktif"}
                   </span>
                 </td>
-                <td className="py-2.5 text-muted-foreground tabular-nums">
+                <td className="py-2.5 pr-3 text-muted-foreground tabular-nums">
                   {formatTanggal(item.terakhirMasuk)}
                 </td>
+                {onUbah && (
+                  <td className="py-2.5 text-right">
+                    <button
+                      type="button"
+                      onClick={() => onUbah(item)}
+                      className="rounded-md border border-border px-2 py-1 text-[10px] text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-none"
+                    >
+                      Ubah
+                    </button>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

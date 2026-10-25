@@ -2,14 +2,9 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import {
-  Check,
-  Download,
-  FileSpreadsheet,
-  FileText,
-  Share2,
-} from "lucide-react";
+import { Check, Download, FileSpreadsheet, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SalinTautan } from "@/components/dashboard/salin-tautan";
 import { KECAMATAN, PROGRAM } from "@/lib/dashboard/mock-data";
 import {
   bacaFilterDariQuery,
@@ -33,13 +28,14 @@ type Props = {
   baris: readonly BarisPenyaluran[];
 };
 
-type Pesan = "unduh" | "excel" | "salin" | "bagi" | "gagal" | null;
+type Pesan = "unduh" | "excel" | "gagal" | null;
 
-/** Tombol unduh CSV/Excel, unduh PDF, dan bagikan tautan filter. */
+/** Tombol unduh Excel/CSV/PDF dan panel salin tautan filter. */
 export function AksiLaporan({ filter, baris }: Props) {
   const [pesan, setPesan] = useState<Pesan>(null);
 
   const total = useMemo(() => ringkasTotal(baris), [baris]);
+  const kueri = filterKeQuery(filter);
 
   const label = {
     wilayah:
@@ -100,112 +96,67 @@ export function AksiLaporan({ filter, baris }: Props) {
     tandai("excel");
   }
 
-  async function bagikan() {
-    const query = filterKeQuery(filter);
-    const url = new URL(window.location.href);
-    url.search = query;
-
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: "Distribusi bantuan Baznas Bazis DKI",
-          text: "Lihat sebaran bantuan pada filter ini:",
-          url: url.toString(),
-        });
-        tandai("bagi");
-        return;
-      }
-    } catch {
-      // Pengguna membatalkan dialog berbagi; lanjut ke salin tautan.
-    }
-
-    try {
-      await navigator.clipboard.writeText(url.toString());
-      tandai("salin");
-    } catch {
-      tandai("gagal");
-    }
-  }
-
-  const pratinjauTautan = filterKeQuery(filter);
-  const tautanLaporan = pratinjauTautan
-    ? `/laporan?${pratinjauTautan}&cetak=1`
+  const tautanLaporan = kueri
+    ? `/laporan?${kueri}&cetak=1`
     : "/laporan?cetak=1";
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        onClick={unduhSpreadsheet}
-        title={`Unduh ${ringkasEkspor(baris).length} baris sebagai Excel`}
-      >
-        <FileSpreadsheet aria-hidden="true" />
-        Excel
-      </Button>
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        onClick={unduh}
-        title={`Unduh ${ringkasEkspor(baris).length} baris sebagai CSV`}
-      >
-        <Download aria-hidden="true" />
-        CSV
-      </Button>
-      <Button asChild variant="outline" size="sm">
-        <Link
-          href={tautanLaporan}
-          target="_blank"
-          rel="noopener noreferrer"
-          title="Buka laporan siap cetak, lalu pilih Simpan sebagai PDF"
+    <div className="flex flex-col items-start gap-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={unduhSpreadsheet}
+          title={`Unduh ${ringkasEkspor(baris).length} baris sebagai Excel`}
         >
-          <FileText aria-hidden="true" />
-          PDF
-        </Link>
-      </Button>
-      <Button type="button" variant="outline" size="sm" onClick={bagikan}>
-        <Share2 aria-hidden="true" />
-        Bagikan
-      </Button>
+          <FileSpreadsheet aria-hidden="true" />
+          Excel
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={unduh}
+          title={`Unduh ${ringkasEkspor(baris).length} baris sebagai CSV`}
+        >
+          <Download aria-hidden="true" />
+          CSV
+        </Button>
+        <Button asChild variant="outline" size="sm">
+          <Link
+            href={tautanLaporan}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Buka laporan siap cetak, lalu pilih Simpan sebagai PDF"
+          >
+            <FileText aria-hidden="true" />
+            PDF
+          </Link>
+        </Button>
 
-      <p
-        role="status"
-        aria-live="polite"
-        className="flex min-h-5 items-center gap-1 text-[11px] text-muted-foreground"
-      >
-        {pesan === "unduh" && (
-          <>
-            <Check className="size-3 text-primary" aria-hidden="true" />
-            CSV diunduh
-          </>
-        )}
-        {pesan === "excel" && (
-          <>
-            <Check className="size-3 text-primary" aria-hidden="true" />
-            Excel diunduh
-          </>
-        )}
-        {pesan === "salin" && (
-          <>
-            <Check className="size-3 text-primary" aria-hidden="true" />
-            Tautan disalin
-          </>
-        )}
-        {pesan === "bagi" && (
-          <>
-            <Check className="size-3 text-primary" aria-hidden="true" />
-            Tautan dibagikan
-          </>
-        )}
-        {pesan === "gagal" && "Tidak ada data untuk diunduh"}
-        {pesan === null && pratinjauTautan && (
-          <span className="hidden sm:inline">
-            Filter aktif ikut tersimpan di tautan
-          </span>
-        )}
-      </p>
+        <span
+          role="status"
+          aria-live="polite"
+          className="flex min-h-5 items-center gap-1 text-[11px] text-muted-foreground"
+        >
+          {pesan === "unduh" && (
+            <>
+              <Check className="size-3 text-primary" aria-hidden="true" />
+              CSV diunduh
+            </>
+          )}
+          {pesan === "excel" && (
+            <>
+              <Check className="size-3 text-primary" aria-hidden="true" />
+              Excel diunduh
+            </>
+          )}
+          {pesan === "gagal" && "Tidak ada data untuk diunduh"}
+        </span>
+      </div>
+
+      <SalinTautan kueri={kueri} />
     </div>
   );
 }

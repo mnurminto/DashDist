@@ -1,5 +1,5 @@
 import "server-only";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
 import {
@@ -41,7 +41,12 @@ const induk = alias(wilayah, "induk");
 /** Filter wilayah/program/periode yang dipakai semua query di bawah. */
 function syarat(filter: SebaranQuery, ikutkanPeriode = true) {
   const daftar = [];
-  if (filter.wilayah) daftar.push(eq(wilayah.kode, filter.wilayah));
+  // Kode bisa berupa kecamatan atau kota administrasi: kalau kota, seluruh
+  // kecamatan di bawahnya ikut terpilih.
+  if (filter.wilayah)
+    daftar.push(
+      or(eq(wilayah.kode, filter.wilayah), eq(induk.kode, filter.wilayah)),
+    );
   if (filter.program) daftar.push(eq(program.kode, filter.program));
   if (ikutkanPeriode && filter.periode)
     daftar.push(
@@ -112,6 +117,7 @@ export async function getSebaran(filter: SebaranQuery): Promise<Sebaran> {
         })
         .from(penyaluranBantuan)
         .innerJoin(wilayah, eq(penyaluranBantuan.wilayahId, wilayah.id))
+        .leftJoin(induk, eq(wilayah.parentId, induk.id))
         .innerJoin(program, eq(penyaluranBantuan.programId, program.id))
         .where(where),
 
@@ -140,6 +146,7 @@ export async function getSebaran(filter: SebaranQuery): Promise<Sebaran> {
         })
         .from(penyaluranBantuan)
         .innerJoin(wilayah, eq(penyaluranBantuan.wilayahId, wilayah.id))
+        .leftJoin(induk, eq(wilayah.parentId, induk.id))
         .innerJoin(program, eq(penyaluranBantuan.programId, program.id))
         .where(whereTanpaPeriode)
         .groupBy(sql`extract(year from ${penyaluranBantuan.tanggal})`)
@@ -153,6 +160,7 @@ export async function getSebaran(filter: SebaranQuery): Promise<Sebaran> {
         })
         .from(penyaluranBantuan)
         .innerJoin(wilayah, eq(penyaluranBantuan.wilayahId, wilayah.id))
+        .leftJoin(induk, eq(wilayah.parentId, induk.id))
         .innerJoin(program, eq(penyaluranBantuan.programId, program.id))
         .where(where),
 

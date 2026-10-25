@@ -125,7 +125,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
                 BB
               </div>
               <Button asChild variant="outline" size="sm">
-                <Link href="/sign-in">Masuk</Link>
+                <Link href="/masuk">Masuk</Link>
               </Button>
             </div>
           </div>

@@ -1,0 +1,50 @@
+import {
+  date,
+  index,
+  numeric,
+  pgTable,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core";
+import { penerimaManfaat } from "./penerima-manfaat";
+import { program } from "./program";
+import { wilayah } from "./wilayah";
+
+/**
+ * Catatan setiap bantuan yang disalurkan — inti data dashboard.
+ *
+ * `jumlah_dana` memakai numeric supaya nilai rupiah tidak terkena pembulatan
+ * floating point.
+ */
+export const penyaluranBantuan = pgTable(
+  "penyaluran_bantuan",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    penerimaId: uuid("penerima_id")
+      .notNull()
+      .references(() => penerimaManfaat.id, { onDelete: "cascade" }),
+    programId: uuid("program_id")
+      .notNull()
+      .references(() => program.id, { onDelete: "restrict" }),
+    wilayahId: uuid("wilayah_id")
+      .notNull()
+      .references(() => wilayah.id, { onDelete: "restrict" }),
+    jumlahDana: numeric("jumlah_dana", { precision: 14, scale: 2 }).notNull(),
+    /** Tanggal penyaluran (tanpa jam). */
+    tanggal: date("tanggal", { mode: "date" }).notNull(),
+    /** Waktu data terakhir diperbarui, dipakai indikator kesegaran data. */
+    diperbaruiPada: timestamp("diperbarui_pada", { withTimezone: true })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("penyaluran_wilayah_tanggal_idx").on(table.wilayahId, table.tanggal),
+    index("penyaluran_program_tanggal_idx").on(table.programId, table.tanggal),
+    index("penyaluran_tanggal_idx").on(table.tanggal),
+    index("penyaluran_penerima_idx").on(table.penerimaId),
+  ],
+);

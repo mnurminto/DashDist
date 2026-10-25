@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ChartSpline, Users } from "lucide-react";
 import { KartuGrafik } from "@/components/dashboard/kartu-grafik";
+import { ProfilWilayah } from "@/components/dashboard/profil-wilayah";
 import { Shell } from "@/components/dashboard/shell";
 import { StatistikUtama } from "@/components/dashboard/statistik-utama";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,26 @@ export default async function DetailWilayahPage({ params }: Props) {
   const baris = saring({ wilayah: kode, program: "semua", periode: "semua" });
   const total = ringkasTotal(baris);
   const ringkas = ringkasPerWilayah(baris).get(kode) ?? null;
+
+  // Peringkat dihitung dari seluruh kecamatan, bukan hanya wilayah ini.
+  const semua = [
+    ...ringkasPerWilayah(
+      saring({ wilayah: "semua", program: "semua", periode: "semua" }),
+    ).values(),
+  ].sort((a, b) => b.dana - a.dana);
+  const peringkat = semua.findIndex((item) => item.code === kode) + 1;
+  const totalDki = semua.reduce((jumlah, item) => jumlah + item.dana, 0);
+
+  const profil = {
+    kota: meta.kota,
+    peringkat: peringkat > 0 ? peringkat : semua.length,
+    totalWilayah: semua.length,
+    porsiDki: totalDki > 0 ? (total.dana / totalDki) * 100 : 0,
+    program: ringkas?.program ?? 0,
+    penerima: total.penerima,
+    dana: total.dana,
+    transaksi: total.transaksi,
+  };
 
   return (
     <Shell>
@@ -90,11 +111,7 @@ export default async function DetailWilayahPage({ params }: Props) {
           judul="Profil ringkas wilayah"
           keterangan="Gambaran singkat kondisi penyaluran."
         >
-          <div className="flex h-44 items-center justify-center rounded-xl border border-dashed border-border/70 bg-background/40">
-            <p className="text-[11px] text-muted-foreground">
-              Menyiapkan profil…
-            </p>
-          </div>
+          <ProfilWilayah data={profil} />
         </KartuGrafik>
 
         <KartuGrafik

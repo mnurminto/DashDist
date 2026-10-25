@@ -1,4 +1,5 @@
-import { X } from "lucide-react";
+import { ArrowUpRight, X } from "lucide-react";
+import Link from "next/link";
 import type { WilayahRingkas } from "@/lib/dashboard/penyaluran";
 import { formatAngka, formatRupiah } from "@/lib/dashboard/format";
 
@@ -72,6 +73,14 @@ export function RingkasanWilayah({ data, onTutup }: Props) {
           <dd className="font-medium tabular-nums">{data.program}</dd>
         </div>
       </dl>
+
+      <Link
+        href={`/wilayah/${data.code}`}
+        className="mt-3 inline-flex items-center gap-1 text-[11px] font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-none"
+      >
+        Lihat detail wilayah
+        <ArrowUpRight className="size-3" aria-hidden="true" />
+      </Link>
     </div>
   );
 }

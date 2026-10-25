@@ -13,6 +13,7 @@ import { Brand } from "@/components/brand";
 import { Button } from "@/components/ui/button";
 import { TERAKHIR_DIPERBARUI } from "@/lib/dashboard/mock-data";
 import { WaktuPembaruan } from "@/components/dashboard/waktu-pembaruan";
+import { NotifikasiPembaruan } from "@/components/dashboard/notifikasi-pembaruan";
 import { useSesiTiruan } from "@/lib/dashboard/use-sesi";
 import { cn } from "cn";
 
@@ -125,6 +126,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
                 waktu={TERAKHIR_DIPERBARUI}
                 className="hidden sm:flex"
               />
+              <NotifikasiPembaruan />
               <div
                 className="hidden size-8 items-center justify-center rounded-full border border-border bg-secondary text-[11px] font-semibold text-foreground sm:flex"
                 aria-hidden="true"

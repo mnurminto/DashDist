@@ -34,7 +34,11 @@ function jarak(selisih: number) {
  * Indikator kesegaran data: titik warna + waktu relatif, dengan waktu lengkap
  * sebagai tooltip. Diperbarui tiap menit tanpa memuat ulang halaman.
  */
-export function WaktuPembaruan({ waktu, label = "Diperbarui", className }: Props) {
+export function WaktuPembaruan({
+  waktu,
+  label = "Diperbarui",
+  className,
+}: Props) {
   const [sekarang, setSekarang] = useState(() => Date.now());
 
   useEffect(() => {
@@ -48,7 +52,10 @@ export function WaktuPembaruan({ waktu, label = "Diperbarui", className }: Props
 
   return (
     <span
-      className={cn("flex items-center gap-2 text-xs text-muted-foreground", className)}
+      className={cn(
+        "flex items-center gap-2 text-xs text-muted-foreground",
+        className,
+      )}
       title={`${label} ${formatWaktu(waktu)}`}
     >
       <span className="relative flex size-1.5" aria-hidden="true">
@@ -63,7 +70,7 @@ export function WaktuPembaruan({ waktu, label = "Diperbarui", className }: Props
         />
       </span>
       <span>
-        {label}{" "}
+        {label ? `${label} ` : null}
         <time
           dateTime={waktu}
           suppressHydrationWarning

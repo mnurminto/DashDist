@@ -13,6 +13,7 @@ import { PetaLegenda } from "@/components/dashboard/peta-legenda";
 import { StatistikUtama } from "@/components/dashboard/statistik-utama";
 import { FilterBar } from "@/components/dashboard/filter-bar";
 import { SKALA } from "@/lib/dashboard/mock-data";
+import { buatSkala } from "@/lib/dashboard/skala-warna";
 import {
   FILTER_AWAL,
   ringkasPerWilayah,
@@ -38,13 +39,30 @@ export function DashboardUtama() {
   const kodeAktif = filter.wilayah !== "semua" ? filter.wilayah : dipilih;
   const wilayah = kodeAktif ? (perWilayah.get(kodeAktif) ?? null) : null;
 
-  // Skala warna sengaja tetap (dari seluruh data) supaya warna antar-filter
-  // tetap bisa dibandingkan, dan legenda tidak berubah-ubah.
-  const skala = SKALA;
+  // Skala warna mengikuti data yang sedang tampil supaya kontras peta tetap
+  // terbaca setelah difilter. Kalau yang tampil hanya sedikit wilayah (mis.
+  // filter satu kecamatan), pakai skala penuh agar tetap bisa dibandingkan.
+  const skala = useMemo(() => {
+    const nilaiTampil = [...perWilayah.values()]
+      .map((item) => item.dana)
+      .filter((dana) => dana > 0);
+    return nilaiTampil.length >= 8 ? buatSkala(nilaiTampil) : SKALA;
+  }, [perWilayah]);
 
+  /**
+   * Klik wilayah di peta hanya memilih wilayah untuk kartu ringkasan; peta
+   * tetap menampilkan seluruh sebaran. Kalau sebelumnya ada filter wilayah
+   * dari dropdown, filter itu dilepas supaya wilayah yang diklik terlihat.
+   */
   function pilihWilayah(kode: string | null) {
     setDipilih(kode);
-    setFilter((sebelumnya) => ({ ...sebelumnya, wilayah: kode ?? "semua" }));
+    if (kode) {
+      setFilter((sebelumnya) =>
+        sebelumnya.wilayah === "semua"
+          ? sebelumnya
+          : { ...sebelumnya, wilayah: "semua" },
+      );
+    }
   }
 
   function ubahFilter(berikutnya: FilterState) {

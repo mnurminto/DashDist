@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FilterX } from "lucide-react";
 import {
   Card,
@@ -15,6 +15,7 @@ import { PeringkatWilayah } from "@/components/dashboard/peringkat-wilayah";
 import { RingkasanWilayah } from "@/components/dashboard/ringkasan-wilayah";
 import { StatistikUtama } from "@/components/dashboard/statistik-utama";
 import { FilterBar } from "@/components/dashboard/filter-bar";
+import { AksiLaporan } from "@/components/dashboard/aksi-laporan";
 import { SKALA } from "@/lib/dashboard/mock-data";
 import { buatSkala } from "@/lib/dashboard/skala-warna";
 import {
@@ -25,6 +26,7 @@ import {
   TAHUN_TERSEDIA,
   type FilterState,
 } from "@/lib/dashboard/penyaluran";
+import { bacaFilterDariQuery, filterKeQuery } from "@/lib/dashboard/ekspor";
 
 /**
  * Bagian utama dashboard: filter, kartu statistik, peta, dan panel kanan.
@@ -42,6 +44,24 @@ export function DashboardUtama() {
   const baris = useMemo(() => saring(filter), [filter]);
   const total = useMemo(() => ringkasTotal(baris), [baris]);
   const perWilayah = useMemo(() => ringkasPerWilayah(baris), [baris]);
+
+  // Filter dibaca dari tautan sekali saat halaman dibuka, supaya tautan
+  // "Bagikan" benar-benar membuka tampilan yang sama.
+  useEffect(() => {
+    const dariTautan = bacaFilterDariQuery(
+      window.location.search.replace(/^\?/, ""),
+    );
+    if (dariTautan)
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- baca sekali dari URL saat halaman dimuat
+      setFilter((sebelumnya) => ({ ...sebelumnya, ...dariTautan }));
+  }, []);
+
+  // Simpan filter aktif di bilah alamat tanpa memuat ulang halaman.
+  useEffect(() => {
+    const query = filterKeQuery(filter);
+    const url = `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`;
+    window.history.replaceState(null, "", url);
+  }, [filter]);
 
   // Tren dana per tahun (2024 → 2026) mengikuti wilayah & program terpilih,
   // tetapi tidak ikut filter periode supaya konteksnya tetap terlihat.
@@ -114,12 +134,15 @@ export function DashboardUtama() {
 
   return (
     <>
-      <FilterBar
-        className="mt-6"
-        nilai={filter}
-        onUbah={ubahFilter}
-        onReset={reset}
-      />
+      <div className="mt-6 flex flex-wrap items-start justify-between gap-3">
+        <FilterBar
+          className="min-w-0 flex-1"
+          nilai={filter}
+          onUbah={ubahFilter}
+          onReset={reset}
+        />
+        <AksiLaporan filter={filter} baris={baris} />
+      </div>
 
       <div className="mt-5">
         <StatistikUtama

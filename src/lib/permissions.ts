@@ -9,6 +9,9 @@ import { adminAc, defaultStatements } from "better-auth/plugins/admin/access";
 export const statement = {
   ...defaultStatements,
   notes: ["read-any", "delete-any"],
+  // Daftar penerima memuat data pribadi, jadi hanya peran yang diberi izin
+  // yang bisa membacanya lewat API.
+  penyaluran: ["read-penerima"],
 } as const;
 
 export const ac = createAccessControl(statement);
@@ -20,6 +23,7 @@ export const roles = {
   admin: ac.newRole({
     ...adminAc.statements,
     notes: ["read-any", "delete-any"],
+    penyaluran: ["read-penerima"],
   }),
 } as const;
 

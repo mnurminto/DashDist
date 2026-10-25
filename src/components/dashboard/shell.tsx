@@ -15,6 +15,7 @@ import { TERAKHIR_DIPERBARUI } from "@/lib/dashboard/mock-data";
 import { WaktuPembaruan } from "@/components/dashboard/waktu-pembaruan";
 import { NotifikasiPembaruan } from "@/components/dashboard/notifikasi-pembaruan";
 import { useSesiTiruan } from "@/lib/dashboard/use-sesi";
+import { hapusSesi } from "@/lib/dashboard/auth-tiruan";
 import { cn } from "cn";
 
 const RAIL = [
@@ -40,6 +41,14 @@ const NAV_STAF = [{ href: "/pengguna", label: "Pengguna" }] as const;
 function aktifSaatIni(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
   return pathname === href;
+}
+
+function inisial(nama: string) {
+  return nama
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((bagian) => bagian.charAt(0).toUpperCase())
+    .join("");
 }
 
 /** Kerangka halaman dashboard: rail ikon, header, dan area konten. */
@@ -127,15 +136,37 @@ export function Shell({ children }: { children: React.ReactNode }) {
                 className="hidden sm:flex"
               />
               <NotifikasiPembaruan />
-              <div
-                className="hidden size-8 items-center justify-center rounded-full border border-border bg-secondary text-[11px] font-semibold text-foreground sm:flex"
-                aria-hidden="true"
-              >
-                BB
-              </div>
-              <Button asChild variant="outline" size="sm">
-                <Link href="/masuk">Masuk</Link>
-              </Button>
+              {sesi ? (
+                <>
+                  <span
+                    className="hidden size-8 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-[11px] font-semibold text-primary sm:flex"
+                    title={`${sesi.nama} · ${sesi.peran}`}
+                    aria-label={`Masuk sebagai ${sesi.nama}`}
+                  >
+                    {inisial(sesi.nama)}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={hapusSesi}
+                  >
+                    Keluar
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <div
+                    className="hidden size-8 items-center justify-center rounded-full border border-border bg-secondary text-[11px] font-semibold text-foreground sm:flex"
+                    aria-hidden="true"
+                  >
+                    BB
+                  </div>
+                  <Button asChild variant="outline" size="sm">
+                    <Link href="/masuk">Masuk</Link>
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </header>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ChartSpline } from "lucide-react";
+import { GrafikTren } from "@/components/dashboard/grafik-tren";
 import { KartuGrafik } from "@/components/dashboard/kartu-grafik";
 import { Shell } from "@/components/dashboard/shell";
 
@@ -53,13 +54,7 @@ export default function GrafikPage() {
         aria-label="Grafik jumlah bantuan"
         className="mt-7 grid gap-4 xl:grid-cols-3"
       >
-        <KartuGrafik
-          judul="Tren penyaluran per bulan"
-          keterangan="Total dana yang disalurkan setiap bulan."
-          className="xl:col-span-2"
-        >
-          <SlotGrafik tinggi="h-80" />
-        </KartuGrafik>
+        <GrafikTren />
 
         <KartuGrafik
           judul="Perbandingan wilayah"

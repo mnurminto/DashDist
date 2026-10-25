@@ -12,7 +12,7 @@ import {
 import { Brand } from "@/components/brand";
 import { Button } from "@/components/ui/button";
 import { TERAKHIR_DIPERBARUI } from "@/lib/dashboard/mock-data";
-import { formatWaktu } from "@/lib/dashboard/format";
+import { WaktuPembaruan } from "@/components/dashboard/waktu-pembaruan";
 import { useSesiTiruan } from "@/lib/dashboard/use-sesi";
 import { cn } from "cn";
 
@@ -121,13 +121,10 @@ export function Shell({ children }: { children: React.ReactNode }) {
             </nav>
 
             <div className="flex items-center gap-3">
-              <span className="hidden items-center gap-2 text-xs text-muted-foreground sm:flex">
-                <span className="relative flex size-1.5" aria-hidden="true">
-                  <span className="absolute inset-0 animate-ping rounded-full bg-primary/40 motion-reduce:animate-none" />
-                  <span className="relative inline-flex size-1.5 rounded-full bg-primary" />
-                </span>
-                Diperbarui {formatWaktu(TERAKHIR_DIPERBARUI)}
-              </span>
+              <WaktuPembaruan
+                waktu={TERAKHIR_DIPERBARUI}
+                className="hidden sm:flex"
+              />
               <div
                 className="hidden size-8 items-center justify-center rounded-full border border-border bg-secondary text-[11px] font-semibold text-foreground sm:flex"
                 aria-hidden="true"

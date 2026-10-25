@@ -1,18 +1,23 @@
 import Link from "next/link";
-import { Layers2 } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { siteConfig } from "@/config/site";
 
 export function Brand() {
   return (
     <Link
       href="/"
-      className="inline-flex items-center gap-2.5 rounded-sm font-semibold tracking-tight focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+      className="inline-flex items-center gap-2.5 rounded-lg font-semibold tracking-tight focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
       aria-label={`${siteConfig.name} home`}
     >
-      <span className="flex size-8 items-center justify-center rounded-lg bg-foreground text-background">
-        <Layers2 className="size-4" aria-hidden="true" />
+      <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+        <Sparkles className="size-4" aria-hidden="true" />
       </span>
-      <span>{siteConfig.name}</span>
+      <span className="text-sm leading-tight">
+        {siteConfig.name}
+        <span className="block text-[11px] font-normal text-muted-foreground">
+          Baznas Bazis DKI Jakarta
+        </span>
+      </span>
     </Link>
   );
 }

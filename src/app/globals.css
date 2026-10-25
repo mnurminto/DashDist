@@ -26,37 +26,40 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --font-sans: Arial, Helvetica, sans-serif;
+  --font-sans:
+    "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, Arial,
+    sans-serif;
   --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 }
 
 :root {
-  --radius: 0.75rem;
-  --background: #fafafa;
-  --foreground: #191919;
-  --card: #ffffff;
-  --card-foreground: #191919;
-  --primary: #bb371e;
-  --primary-foreground: #ffffff;
-  --secondary: #f0f0ef;
-  --muted: #f4f4f3;
-  --muted-foreground: #656561;
-  --border: #e4e4e1;
-  --destructive: #b91c1c;
+  --radius: 1rem;
+  /* Palet gelap-hangat: charcoal, off-white, olive-gold, peach. */
+  --background: #101010;
+  --foreground: #efeeee;
+  --card: #171718;
+  --card-foreground: #efeeee;
+  --primary: #baab56;
+  --primary-foreground: #15150f;
+  --secondary: #242426;
+  --muted: #1d1d1f;
+  --muted-foreground: #8d8c8c;
+  --border: #2b2b2d;
+  --destructive: #e2705f;
 }
 
 .dark {
-  --background: #161616;
-  --foreground: #f5f5f4;
-  --card: #202020;
-  --card-foreground: #f5f5f4;
-  --primary: #fb846b;
-  --primary-foreground: #29100a;
-  --secondary: #2d2d2b;
-  --muted: #252525;
-  --muted-foreground: #b0b0aa;
-  --border: #3b3b37;
-  --destructive: #ff8a8a;
+  --background: #101010;
+  --foreground: #efeeee;
+  --card: #171718;
+  --card-foreground: #efeeee;
+  --primary: #baab56;
+  --primary-foreground: #15150f;
+  --secondary: #242426;
+  --muted: #1d1d1f;
+  --muted-foreground: #8d8c8c;
+  --border: #2b2b2d;
+  --destructive: #e2705f;
 }
 
 @layer base {
@@ -65,6 +68,19 @@
   }
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    background-image:
+      radial-gradient(
+        1100px 520px at 82% -12%,
+        rgba(186, 171, 86, 0.1),
+        transparent 62%
+      ),
+      radial-gradient(
+        900px 480px at 8% 108%,
+        rgba(226, 185, 169, 0.06),
+        transparent 60%
+      );
+    background-repeat: no-repeat;
+    background-attachment: fixed;
   }
   button,
   a,
@@ -78,6 +94,16 @@
     cursor: pointer;
   }
   ::selection {
-    background: #bb371e22;
+    background: #baab5633;
+  }
+}
+
+@layer components {
+  /* Panah dropdown untuk <select> gelap (pengganti arrow bawaan browser). */
+  .select-dark {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238d8c8c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.7rem center;
+    background-size: 16px;
   }
 }

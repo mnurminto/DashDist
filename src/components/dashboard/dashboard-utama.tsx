@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/card";
 import { JakartaMap } from "@/components/dashboard/jakarta-map";
 import { PetaLegenda } from "@/components/dashboard/peta-legenda";
+import { PeringkatWilayah } from "@/components/dashboard/peringkat-wilayah";
+import { RingkasanWilayah } from "@/components/dashboard/ringkasan-wilayah";
 import { StatistikUtama } from "@/components/dashboard/statistik-utama";
 import { FilterBar } from "@/components/dashboard/filter-bar";
 import { SKALA } from "@/lib/dashboard/mock-data";
@@ -23,7 +25,7 @@ import {
 } from "@/lib/dashboard/penyaluran";
 
 /**
- * Bagian utama dashboard: filter, kartu statistik, dan peta.
+ * Bagian utama dashboard: filter, kartu statistik, peta, dan panel kanan.
  *
  * Semua angka dihitung dari buku besar contoh yang sudah difilter, jadi
  * memilih wilayah/program/periode langsung mengubah kartu dan warna peta.
@@ -38,6 +40,15 @@ export function DashboardUtama() {
 
   const kodeAktif = filter.wilayah !== "semua" ? filter.wilayah : dipilih;
   const wilayah = kodeAktif ? (perWilayah.get(kodeAktif) ?? null) : null;
+
+  const peringkat = useMemo(
+    () =>
+      [...perWilayah.values()]
+        .filter((item) => item.dana > 0)
+        .sort((a, b) => b.dana - a.dana)
+        .slice(0, 5),
+    [perWilayah],
+  );
 
   // Skala warna mengikuti data yang sedang tampil supaya kontras peta tetap
   // terbaca setelah difilter. Kalau yang tampil hanya sedikit wilayah (mis.
@@ -78,7 +89,7 @@ export function DashboardUtama() {
   return (
     <>
       <FilterBar
-        className="mt-8"
+        className="mt-6"
         nilai={filter}
         onUbah={ubahFilter}
         onReset={reset}
@@ -92,34 +103,54 @@ export function DashboardUtama() {
         />
       </div>
 
-      <Card className="mt-5 gap-4 overflow-hidden py-0">
-        <CardHeader className="gap-1 border-b py-5">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <CardTitle className="text-base">
-              {wilayah ? `Kecamatan ${wilayah.nama}` : "Sebaran per kecamatan"}
-            </CardTitle>
-            <span className="rounded-full border bg-muted px-2.5 py-0.5 text-xs text-muted-foreground">
-              Data contoh
-            </span>
-          </div>
-          <CardDescription>
-            {wilayah
-              ? `${wilayah.kota} · klik wilayah lain untuk berganti`
-              : total.wilayah === 0
-                ? "Tidak ada data untuk kombinasi filter ini."
-                : `${total.wilayah} kecamatan memiliki penyaluran pada filter ini.`}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="pb-6">
-          <JakartaMap
-            dipilih={kodeAktif}
-            onPilih={pilihWilayah}
-            nilai={perWilayah}
-            skala={skala}
-            footer={<PetaLegenda kelas={skala.kelas} />}
+      <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1fr)_19rem]">
+        <Card
+          id="peta"
+          className="scroll-mt-24 gap-3 overflow-hidden rounded-2xl border-border bg-card/60 py-0"
+        >
+          <CardHeader className="gap-1 border-b border-border/60 py-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <CardTitle className="text-sm font-medium tracking-tight">
+                {wilayah
+                  ? `Kecamatan ${wilayah.nama}`
+                  : "Sebaran per kecamatan"}
+              </CardTitle>
+            </div>
+            <CardDescription className="text-xs">
+              {wilayah
+                ? `${wilayah.kota} · klik wilayah lain untuk berganti`
+                : total.wilayah === 0
+                  ? "Tidak ada data untuk kombinasi filter ini."
+                  : `${total.wilayah} kecamatan memiliki penyaluran pada filter ini.`}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pb-5">
+            <JakartaMap
+              dipilih={kodeAktif}
+              onPilih={pilihWilayah}
+              nilai={perWilayah}
+              skala={skala}
+              footer={<PetaLegenda kelas={skala.kelas} />}
+            />
+          </CardContent>
+        </Card>
+
+        <aside
+          id="wilayah"
+          aria-label="Ringkasan dan peringkat wilayah"
+          className="space-y-4 scroll-mt-24 xl:sticky xl:top-24 xl:self-start"
+        >
+          <RingkasanWilayah
+            data={wilayah}
+            onTutup={kodeAktif ? () => pilihWilayah(null) : undefined}
           />
-        </CardContent>
-      </Card>
+          <PeringkatWilayah
+            data={peringkat}
+            aktif={kodeAktif}
+            onPilih={pilihWilayah}
+          />
+        </aside>
+      </div>
     </>
   );
 }

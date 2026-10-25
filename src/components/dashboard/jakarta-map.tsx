@@ -7,7 +7,6 @@ import { GEO, KECAMATAN } from "@/lib/dashboard/mock-data";
 import { formatAngka, formatRupiah } from "@/lib/dashboard/format";
 import { TINGKAT_WARNA, type Skala } from "@/lib/dashboard/skala-warna";
 import type { WilayahRingkas } from "@/lib/dashboard/penyaluran";
-import { RingkasanWilayah } from "@/components/dashboard/ringkasan-wilayah";
 
 type Sorot = { kode: string; x: number; y: number };
 
@@ -102,7 +101,6 @@ export function JakartaMap({
 
   const sedangAktif = sorot?.kode ?? dipilih;
   const info = sorot ? dataByCode.get(sorot.kode) : null;
-  const wilayahDipilih = dipilih ? (dataByCode.get(dipilih) ?? null) : null;
 
   function pilih(kode: string) {
     onPilih(dipilih === kode ? null : kode);
@@ -140,10 +138,13 @@ export function JakartaMap({
         key={kode}
         d={path}
         fill={TINGKAT_WARNA[tingkat]}
-        stroke={disorot ? "#191919" : (opsi?.stroke ?? "#ffffff")}
-        strokeWidth={disorot ? 2.4 : 1}
+        stroke={disorot ? "#efeeee" : (opsi?.stroke ?? "#0d0d0d")}
+        strokeWidth={disorot ? 1.8 : 1}
         strokeLinejoin="round"
-        className="cursor-pointer transition-[stroke,stroke-width] duration-150 outline-none"
+        className={cn(
+          "cursor-pointer transition-[filter,stroke,stroke-width] duration-200 outline-none",
+          disorot && "drop-shadow-[0_0_9px_rgba(195,176,100,0.45)]",
+        )}
         tabIndex={0}
         role="button"
         aria-pressed={dipilih === kode}
@@ -189,11 +190,11 @@ export function JakartaMap({
         className,
       )}
     >
-      <div className="mb-1 flex items-center justify-end">
+      <div className="mb-2 flex items-center justify-end">
         <button
           type="button"
           onClick={alihLayarPenuh}
-          className="inline-flex items-center gap-1.5 rounded-md border bg-background px-2.5 py-1.5 text-xs font-medium transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-secondary/50 px-2.5 py-1.5 text-[11px] font-medium text-foreground transition-colors hover:bg-secondary focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-none"
           aria-pressed={layarPenuh}
         >
           {layarPenuh ? (
@@ -207,7 +208,7 @@ export function JakartaMap({
 
       <div
         className={cn(
-          "grid gap-5 md:grid-cols-[minmax(0,1fr)_16rem] md:items-start",
+          "grid gap-5 md:grid-cols-[minmax(0,1fr)] md:items-start",
           layarPenuh && "flex-1",
         )}
       >
@@ -215,10 +216,10 @@ export function JakartaMap({
           <svg
             viewBox={`0 0 ${GEO.viewBox.width} ${GEO.viewBox.height}`}
             className={cn(
-              "mx-auto block h-auto",
+              "mx-auto block w-full max-w-[760px]",
               layarPenuh
-                ? "max-h-[70vh] w-auto max-w-full"
-                : "w-full max-w-[720px]",
+                ? "h-full max-h-[72vh]"
+                : "h-auto sm:h-[clamp(380px,56vh,640px)]",
             )}
             role="group"
             aria-label="Peta sebaran bantuan per kecamatan di DKI Jakarta"
@@ -238,14 +239,15 @@ export function JakartaMap({
                 textAnchor="middle"
                 className="pointer-events-none hidden sm:block"
                 style={{
-                  fontSize: 15,
+                  fontSize: 14,
                   fontWeight: 600,
-                  fill: "#4a423c",
+                  fill: "#d9d7ce",
                   paintOrder: "stroke",
-                  stroke: "#ffffff",
+                  stroke: "#101010",
                   strokeWidth: 4,
                   strokeLinejoin: "round",
-                  letterSpacing: "0.02em",
+                  letterSpacing: "0.04em",
+                  textTransform: "uppercase",
                 }}
               >
                 {kota.nama.replace("Jakarta ", "")}
@@ -266,7 +268,7 @@ export function JakartaMap({
               >
                 {GEO.seribu.items.map((wilayah) =>
                   renderWilayah(wilayah.code, wilayah.path, {
-                    stroke: "#c9c3bb",
+                    stroke: "#3a3a34",
                     tingkatMinimum: 2,
                     pusat: wilayah.pusat,
                   }),
@@ -277,7 +279,7 @@ export function JakartaMap({
 
           {info && sorot && (
             <div
-              className="pointer-events-none absolute z-10 w-52 -translate-x-1/2 -translate-y-[calc(100%+16px)] rounded-lg border bg-card px-3 py-2 text-xs shadow-md"
+              className="pointer-events-none absolute z-10 w-52 -translate-x-1/2 -translate-y-[calc(100%+16px)] rounded-xl border border-border bg-card/95 px-3 py-2 text-xs shadow-xl backdrop-blur"
               style={{ left: sorot.x, top: sorot.y }}
               aria-hidden="true"
             >
@@ -300,16 +302,13 @@ export function JakartaMap({
             </div>
           )}
         </div>
-
-        <div className="md:sticky md:top-4">
-          <RingkasanWilayah
-            data={wilayahDipilih}
-            onTutup={dipilih ? () => onPilih(null) : undefined}
-          />
-        </div>
       </div>
 
-      {footer && <div className={cn(layarPenuh && "border-t")}>{footer}</div>}
+      {footer && (
+        <div className={cn(layarPenuh && "border-t border-border/60")}>
+          {footer}
+        </div>
+      )}
     </div>
   );
 }

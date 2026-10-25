@@ -1,0 +1,83 @@
+"use client";
+
+import { ArrowUpRight } from "lucide-react";
+import type { WilayahRingkas } from "@/lib/dashboard/penyaluran";
+import { formatRupiahRingkas } from "@/lib/dashboard/format";
+
+type Props = {
+  data: readonly WilayahRingkas[];
+  aktif?: string | null;
+  onPilih?: (kode: string) => void;
+};
+
+/**
+ * Panel kanan: kecamatan dengan penyaluran terbesar pada filter aktif.
+ * Batang kecil membantu membandingkan tanpa harus membaca angkanya.
+ */
+export function PeringkatWilayah({ data, aktif, onPilih }: Props) {
+  if (data.length === 0) {
+    return (
+      <div className="rounded-2xl border border-dashed border-border/80 bg-card/40 p-4">
+        <p className="text-xs text-muted-foreground">
+          Tidak ada wilayah pada filter ini.
+        </p>
+      </div>
+    );
+  }
+
+  const maksimum = Math.max(...data.map((item) => item.dana), 1);
+
+  return (
+    <div className="rounded-2xl border border-border bg-card/70 p-4">
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="text-[10px] font-medium tracking-[0.16em] text-muted-foreground uppercase">
+          Penyaluran terbesar
+        </h2>
+        <ArrowUpRight
+          className="size-3.5 text-muted-foreground/60"
+          aria-hidden="true"
+        />
+      </div>
+
+      <ol className="mt-3 space-y-2.5">
+        {data.map((wilayah, i) => {
+          const terpilih = aktif === wilayah.code;
+          return (
+            <li key={wilayah.code}>
+              <button
+                type="button"
+                onClick={() => onPilih?.(wilayah.code)}
+                className={`w-full rounded-lg px-1.5 py-1.5 text-left transition-colors hover:bg-secondary/60 focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-none ${
+                  terpilih ? "bg-secondary/70" : ""
+                }`}
+                aria-pressed={terpilih}
+              >
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="flex min-w-0 items-baseline gap-2">
+                    <span className="font-mono text-[10px] text-muted-foreground/60">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span className="truncate text-xs font-medium">
+                      {wilayah.nama}
+                    </span>
+                  </span>
+                  <span className="shrink-0 text-[11px] text-muted-foreground tabular-nums">
+                    {formatRupiahRingkas(wilayah.dana)}
+                  </span>
+                </div>
+                <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-white/5">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-[#5d6238] to-[#c3b064]"
+                    style={{
+                      width: `${Math.max((wilayah.dana / maksimum) * 100, 4)}%`,
+                    }}
+                  />
+                </div>
+              </button>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
+  );
+}

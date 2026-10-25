@@ -38,10 +38,10 @@ export function StatistikUtama({ total, wilayah, adaFilter }: Props) {
   const kartu: Kartu[] = [
     {
       label: "Penerima manfaat",
-      nilai: `${formatAngka(penerima)} orang`,
+      nilai: `${formatAngka(penerima)}`,
       keterangan: wilayah
-        ? `penerima di Kecamatan ${wilayah.nama}`
-        : `${formatAngka(transaksi)} transaksi penyaluran`,
+        ? `orang di Kecamatan ${wilayah.nama}`
+        : `orang dari ${formatAngka(transaksi)} transaksi`,
       ikon: Users,
     },
     {
@@ -49,72 +49,84 @@ export function StatistikUtama({ total, wilayah, adaFilter }: Props) {
       nilai: formatRupiah(dana),
       keterangan:
         penerima > 0
-          ? `${formatRupiah(Math.round(dana / penerima))} per penerima manfaat`
+          ? `${formatRupiah(Math.round(dana / penerima))} per penerima`
           : "belum ada data pada filter ini",
       ikon: Banknote,
     },
     {
       label: "Program berjalan",
-      nilai: `${program} program`,
+      nilai: `${program}`,
       keterangan: wilayah
-        ? "program yang menyalurkan di wilayah ini"
+        ? "program menyalurkan di wilayah ini"
         : adaFilter
-          ? "program yang menyalurkan pada filter ini"
-          : "program bantuan aktif menyalurkan",
+          ? "program pada filter ini"
+          : "program bantuan aktif",
       ikon: Layers,
     },
     wilayah
       ? {
           label: "Transaksi",
-          nilai: `${formatAngka(transaksi)} kali`,
-          keterangan: `penyaluran tercatat di Kecamatan ${wilayah.nama}`,
+          nilai: formatAngka(transaksi),
+          keterangan: "penyaluran tercatat di wilayah ini",
           ikon: Receipt,
         }
       : {
           label: "Wilayah terjangkau",
-          nilai: `${total.wilayah} kecamatan`,
-          keterangan: `dari ${KECAMATAN.length} kecamatan di ${jumlahKota} wilayah administrasi`,
+          nilai: `${total.wilayah}`,
+          keterangan: `kecamatan dari ${KECAMATAN.length} · ${jumlahKota} wilayah administrasi`,
           ikon: MapPin,
         },
   ];
 
   return (
-    <section aria-label="Ringkasan statistik bantuan" aria-live="polite">
+    <section
+      id="ringkasan"
+      aria-label="Ringkasan statistik bantuan"
+      aria-live="polite"
+      className="mt-7 scroll-mt-24"
+    >
       <div className="mb-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
-        <h2 className="text-sm font-semibold tracking-tight">
+        <h2 className="text-[11px] font-medium tracking-[0.16em] text-muted-foreground uppercase">
           {wilayah
             ? `Ringkasan Kecamatan ${wilayah.nama}`
             : "Ringkasan DKI Jakarta"}
         </h2>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-[11px] text-muted-foreground/70">
           {wilayah
-            ? `${wilayah.kota} · klik wilayah lain di peta untuk berganti`
+            ? `· ${wilayah.kota}`
             : adaFilter
-              ? "sesuai filter yang dipilih"
-              : "akumulasi seluruh wilayah dan program"}
+              ? "· sesuai filter"
+              : "· seluruh wilayah & program"}
         </p>
       </div>
 
-      <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {kartu.map((item) => {
           const Ikon = item.ikon;
           return (
             <li
               key={item.label}
-              className="rounded-xl border bg-card p-5 shadow-sm"
+              className="relative overflow-hidden rounded-2xl border border-border bg-card/80 p-5"
             >
-              <div className="flex items-center justify-between gap-2">
-                <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
+              <div className="flex items-start justify-between gap-2">
+                <p className="text-[10px] font-medium tracking-[0.16em] text-muted-foreground uppercase">
                   {item.label}
                 </p>
-                <Ikon className="size-4 text-primary" aria-hidden="true" />
+                <Ikon
+                  className="size-4 text-muted-foreground/60"
+                  aria-hidden="true"
+                />
               </div>
-              <p className="mt-3 text-2xl font-semibold tracking-tight text-card-foreground tabular-nums">
+              <p className="mt-4 text-[1.7rem] leading-none font-semibold tracking-tight text-card-foreground tabular-nums">
                 {item.nilai}
               </p>
-              <p className="mt-1 text-xs leading-5 text-muted-foreground">
+              <p className="mt-2 text-xs leading-5 text-muted-foreground">
                 {item.keterangan}
               </p>
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute -right-8 -bottom-10 size-28 rounded-full bg-primary/10 blur-2xl"
+              />
             </li>
           );
         })}

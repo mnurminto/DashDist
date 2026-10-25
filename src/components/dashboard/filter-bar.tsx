@@ -21,6 +21,9 @@ type Props = {
   className?: string;
 };
 
+const SELECT_KELAS =
+  "select-dark h-9 w-full appearance-none rounded-lg border border-border bg-[#141415] pr-9 pl-3 text-sm text-foreground shadow-xs outline-none transition-colors hover:border-white/20 focus-visible:border-primary/60 focus-visible:ring-[3px] focus-visible:ring-primary/20";
+
 /** Baris kontrol filter: wilayah, program, dan periode. */
 export function FilterBar({ nilai, onUbah, onReset, className }: Props) {
   const aktif = jumlahFilterAktif(nilai);
@@ -65,17 +68,18 @@ export function FilterBar({ nilai, onUbah, onReset, className }: Props) {
 
   return (
     <section
+      id="filter"
       aria-label="Filter data bantuan"
       className={cn(
-        "rounded-xl border bg-card p-4 shadow-sm sm:p-5",
+        "scroll-mt-24 rounded-2xl border border-border bg-card/70 p-4 backdrop-blur sm:p-5",
         className,
       )}
     >
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:items-end">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[1fr_1fr_1fr_auto] xl:items-end">
         <div className="space-y-1.5">
           <label
             htmlFor="filter-wilayah"
-            className="block text-xs font-medium text-muted-foreground"
+            className="block text-[10px] font-medium tracking-[0.16em] text-muted-foreground uppercase"
           >
             Wilayah
           </label>
@@ -83,7 +87,7 @@ export function FilterBar({ nilai, onUbah, onReset, className }: Props) {
             id="filter-wilayah"
             value={nilai.wilayah}
             onChange={(e) => ubah("wilayah", e.target.value)}
-            className="h-9 w-full rounded-md border bg-background px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            className={SELECT_KELAS}
           >
             <option value="semua">Semua kecamatan</option>
             {OPSI_WILAYAH_PER_KOTA.map((kelompok) => (
@@ -101,7 +105,7 @@ export function FilterBar({ nilai, onUbah, onReset, className }: Props) {
         <div className="space-y-1.5">
           <label
             htmlFor="filter-program"
-            className="block text-xs font-medium text-muted-foreground"
+            className="block text-[10px] font-medium tracking-[0.16em] text-muted-foreground uppercase"
           >
             Jenis program
           </label>
@@ -109,7 +113,7 @@ export function FilterBar({ nilai, onUbah, onReset, className }: Props) {
             id="filter-program"
             value={nilai.program}
             onChange={(e) => ubah("program", e.target.value)}
-            className="h-9 w-full rounded-md border bg-background px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            className={SELECT_KELAS}
           >
             <option value="semua">Semua program</option>
             {OPSI_PROGRAM.map((program) => (
@@ -123,7 +127,7 @@ export function FilterBar({ nilai, onUbah, onReset, className }: Props) {
         <div className="space-y-1.5">
           <label
             htmlFor="filter-periode"
-            className="block text-xs font-medium text-muted-foreground"
+            className="block text-[10px] font-medium tracking-[0.16em] text-muted-foreground uppercase"
           >
             Periode
           </label>
@@ -131,7 +135,7 @@ export function FilterBar({ nilai, onUbah, onReset, className }: Props) {
             id="filter-periode"
             value={nilai.periode}
             onChange={(e) => ubah("periode", e.target.value)}
-            className="h-9 w-full rounded-md border bg-background px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            className={SELECT_KELAS}
           >
             <option value="semua">Semua periode</option>
             {OPSI_PERIODE.map((periode) => (
@@ -146,7 +150,7 @@ export function FilterBar({ nilai, onUbah, onReset, className }: Props) {
           type="button"
           onClick={(e) => resetkan(e.nativeEvent.detail === 0)}
           disabled={aktif === 0}
-          className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border bg-background px-3 text-sm font-medium shadow-xs transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-border bg-secondary/50 px-3 text-xs font-medium text-foreground transition-colors hover:bg-secondary focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
         >
           <RotateCcw className="size-3.5" aria-hidden="true" />
           Tampilkan semua data
@@ -158,19 +162,21 @@ export function FilterBar({ nilai, onUbah, onReset, className }: Props) {
         aria-live="polite"
       >
         {aktif === 0 ? (
-          <p className="text-xs text-muted-foreground">
+          <p className="text-[11px] text-muted-foreground">
             Menampilkan seluruh data DKI Jakarta.
           </p>
         ) : (
           <>
-            <span className="text-xs text-muted-foreground">Filter aktif:</span>
+            <span className="text-[11px] tracking-wide text-muted-foreground uppercase">
+              Filter aktif
+            </span>
             {chip.map((item) => (
               <button
                 key={item.kunci}
                 type="button"
                 onClick={() => ubah(item.kunci, "semua")}
                 aria-label={`Hapus filter ${item.label}`}
-                className="inline-flex items-center gap-1 rounded-full border bg-muted px-2.5 py-1 text-xs font-medium transition-colors hover:bg-secondary focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 text-[11px] font-medium text-primary transition-colors hover:bg-primary/20 focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-none"
               >
                 {item.label}
                 <X className="size-3" aria-hidden="true" />
@@ -179,7 +185,7 @@ export function FilterBar({ nilai, onUbah, onReset, className }: Props) {
             <button
               type="button"
               onClick={(e) => resetkan(e.nativeEvent.detail === 0)}
-              className="rounded-sm text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+              className="rounded-sm text-[11px] text-muted-foreground underline underline-offset-4 hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-none"
             >
               Hapus semua
             </button>

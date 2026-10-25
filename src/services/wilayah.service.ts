@@ -40,6 +40,103 @@ const DANA = sql<string>`coalesce(sum(${penyaluranBantuan.jumlahDana}), 0)::text
 
 type OpsiDetail = { program?: string; periode?: number };
 
+export type ProfilWilayah = {
+  wilayah: { kode: string; nama: string; kota: string };
+  /** Peringkat 1–N berdasarkan dana tersalurkan. */
+  peringkat: number;
+  totalWilayah: number;
+  /** Persentase dana wilayah terhadap total DKI. */
+  porsiDki: number;
+  program: number;
+  penerima: number;
+  dana: number;
+  transaksi: number;
+  danaPerPenerima: number;
+  danaPerTransaksi: number;
+  /** Rata-rata dana per kecamatan di DKI, untuk pembanding. */
+  rataRataDki: number;
+};
+
+type BarisPeringkat = {
+  peringkat: string | number;
+  total_wilayah: string | number;
+  total_dki: string | number;
+};
+
+/**
+ * Profil ringkas satu wilayah: peringkat, porsi dana DKI, dan rata-rata.
+ * Peringkat dihitung di SQL dengan window function agar tidak menarik seluruh
+ * baris ke aplikasi. Mengembalikan null bila kode tidak dikenal.
+ */
+export async function getProfilWilayah(
+  kode: string,
+): Promise<ProfilWilayah | null> {
+  const [data] = await db
+    .select({
+      id: wilayah.id,
+      kode: wilayah.kode,
+      nama: wilayah.nama,
+      kota: sql<string>`coalesce(${induk.nama}, ${wilayah.nama})`,
+    })
+    .from(wilayah)
+    .leftJoin(induk, eq(wilayah.parentId, induk.id))
+    .where(eq(wilayah.kode, kode))
+    .limit(1);
+
+  if (!data) return null;
+
+  const [ringkasan] = await db
+    .select({
+      penerima: sql<number>`count(distinct ${penyaluranBantuan.penerimaId})::int`,
+      dana: DANA,
+      transaksi: sql<number>`count(*)::int`,
+      program: sql<number>`count(distinct ${penyaluranBantuan.programId})::int`,
+    })
+    .from(penyaluranBantuan)
+    .innerJoin(program, eq(penyaluranBantuan.programId, program.id))
+    .where(eq(penyaluranBantuan.wilayahId, data.id));
+
+  // Peringkat memakai seluruh kecamatan/kota yang punya penyaluran.
+  const hasilPeringkat = await db.execute<BarisPeringkat>(sql`
+    with per_wilayah as (
+      select wilayah_id, sum(jumlah_dana) as dana
+      from penyaluran_bantuan
+      group by wilayah_id
+    ), ranked as (
+      select
+        wilayah_id,
+        rank() over (order by dana desc) as peringkat,
+        count(*) over () as total_wilayah,
+        sum(dana) over () as total_dki
+      from per_wilayah
+    )
+    select peringkat, total_wilayah, total_dki
+    from ranked
+    where wilayah_id = ${data.id}
+  `);
+
+  const peringkat = hasilPeringkat.rows[0];
+  const dana = Number(ringkasan?.dana ?? 0);
+  const penerima = Number(ringkasan?.penerima ?? 0);
+  const transaksi = Number(ringkasan?.transaksi ?? 0);
+  const totalWilayah = Number(peringkat?.total_wilayah ?? 0);
+  const totalDki = Number(peringkat?.total_dki ?? 0);
+
+  return {
+    wilayah: { kode: data.kode, nama: data.nama, kota: data.kota },
+    peringkat: peringkat ? Number(peringkat.peringkat) : totalWilayah,
+    totalWilayah,
+    porsiDki: totalDki > 0 ? (dana / totalDki) * 100 : 0,
+    program: Number(ringkasan?.program ?? 0),
+    penerima,
+    dana,
+    transaksi,
+    danaPerPenerima: penerima > 0 ? dana / penerima : 0,
+    danaPerTransaksi: transaksi > 0 ? dana / transaksi : 0,
+    rataRataDki: totalWilayah > 0 ? totalDki / totalWilayah : 0,
+  };
+}
+
 function syaratDetail(wilayahId: string, opsi: OpsiDetail, periode = true) {
   const daftar = [eq(penyaluranBantuan.wilayahId, wilayahId)];
   if (opsi.program) daftar.push(eq(program.kode, opsi.program));

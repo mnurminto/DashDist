@@ -76,7 +76,7 @@ export function StatistikUtama({ wilayah }: Props) {
   ];
 
   return (
-    <section aria-label="Ringkasan statistik bantuan" className="mt-8">
+    <section aria-label="Ringkasan statistik bantuan">
       <div className="mb-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
         <h2 className="text-sm font-semibold tracking-tight">
           {wilayah

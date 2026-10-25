@@ -11,22 +11,38 @@ import {
 import { JakartaMap } from "@/components/dashboard/jakarta-map";
 import { PetaLegenda } from "@/components/dashboard/peta-legenda";
 import { StatistikUtama } from "@/components/dashboard/statistik-utama";
+import {
+  FilterBar,
+  FILTER_AWAL,
+  type FilterState,
+} from "@/components/dashboard/filter-bar";
 import { KECAMATAN } from "@/lib/dashboard/mock-data";
 
 /**
- * Bagian utama dashboard: kartu statistik + peta.
+ * Bagian utama dashboard: filter, kartu statistik, dan peta.
  * Pilihan wilayah disimpan di sini supaya kartu statistik ikut berubah
  * saat pengguna mengklik kecamatan di peta.
  */
 export function DashboardUtama() {
   const [dipilih, setDipilih] = useState<string | null>(null);
+  const [filter, setFilter] = useState<FilterState>(FILTER_AWAL);
+
   const wilayah = dipilih
     ? (KECAMATAN.find((kecamatan) => kecamatan.code === dipilih) ?? null)
     : null;
 
   return (
     <>
-      <StatistikUtama wilayah={wilayah} />
+      <FilterBar
+        className="mt-8"
+        nilai={filter}
+        onUbah={setFilter}
+        onReset={() => setFilter(FILTER_AWAL)}
+      />
+
+      <div className="mt-5">
+        <StatistikUtama wilayah={wilayah} />
+      </div>
 
       <Card className="mt-5 gap-4 overflow-hidden py-0">
         <CardHeader className="gap-1 border-b py-5">

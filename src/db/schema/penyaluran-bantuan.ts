@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import {
   date,
   index,
+  integer,
   numeric,
   pgTable,
   timestamp,
@@ -33,6 +34,17 @@ export const penyaluranBantuan = pgTable(
     jumlahDana: numeric("jumlah_dana", { precision: 14, scale: 2 }).notNull(),
     /** Tanggal penyaluran (tanpa jam). */
     tanggal: date("tanggal", { mode: "date" }).notNull(),
+    /**
+     * Tahun & bulan diturunkan otomatis dari `tanggal` (generated column).
+     * Grafik tren mengelompokkan data per bulan/tahun, jadi kolom ini membuat
+     * agregasinya cepat dan tidak perlu fungsi pada kolom tanggal.
+     */
+    tahun: integer("tahun").generatedAlwaysAs(
+      sql`extract(year from "tanggal")::int`,
+    ),
+    bulan: integer("bulan").generatedAlwaysAs(
+      sql`extract(month from "tanggal")::int`,
+    ),
     /** Waktu data terakhir diperbarui, dipakai indikator kesegaran data. */
     diperbaruiPada: timestamp("diperbarui_pada", { withTimezone: true })
       .defaultNow()
@@ -54,6 +66,18 @@ export const penyaluranBantuan = pgTable(
       table.programId,
       table.wilayahId,
       table.tanggal,
+    ),
+    // Grafik bulanan/tahunan memakai kolom turunan ini.
+    index("penyaluran_waktu_idx").on(table.tahun, table.bulan),
+    index("penyaluran_wilayah_waktu_idx").on(
+      table.wilayahId,
+      table.tahun,
+      table.bulan,
+    ),
+    index("penyaluran_program_waktu_idx").on(
+      table.programId,
+      table.tahun,
+      table.bulan,
     ),
   ],
 );

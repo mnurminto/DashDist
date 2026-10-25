@@ -43,6 +43,13 @@
       "when": 1792916958684,
       "tag": "0005_small_christian_walker",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792928357158,
+      "tag": "0006_volatile_gunslinger",
+      "breakpoints": true
     }
   ]
 }

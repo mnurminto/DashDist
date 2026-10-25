@@ -30,6 +30,8 @@ type Props = {
   onHoverWilayah?: (kode: string | null) => void;
   /** Kode kecamatan teratas, ditandai dengan nomor di peta. */
   peringkat?: readonly string[];
+  /** Kode wilayah yang datanya baru diperbarui, ditandai titik berdenyut. */
+  baru?: ReadonlySet<string>;
   /** Total dana seluruh DKI, untuk menghitung porsi pada tooltip. */
   totalDana?: number;
 };
@@ -45,6 +47,7 @@ export function JakartaMap({
   sorotEksternal = null,
   onHoverWilayah,
   peringkat = [],
+  baru = new Set<string>(),
   totalDana = 0,
 }: Props) {
   const wadah = useRef<HTMLDivElement>(null);
@@ -337,6 +340,32 @@ export function JakartaMap({
               );
             })}
 
+            {/* Titik berdenyut untuk wilayah yang datanya baru diperbarui. */}
+            {[...baru].map((kode) => {
+              const pusat = pusatByCode.get(kode);
+              if (!pusat) return null;
+              return (
+                <g key={`baru-${kode}`} className="pointer-events-none">
+                  <circle
+                    cx={pusat.x}
+                    cy={pusat.y}
+                    r={11}
+                    fill="rgba(186,171,86,0.18)"
+                    className="motion-safe:animate-ping"
+                    style={{ transformOrigin: `${pusat.x}px ${pusat.y}px` }}
+                  />
+                  <circle
+                    cx={pusat.x}
+                    cy={pusat.y}
+                    r={4.5}
+                    fill="#f0e7b6"
+                    stroke="#101010"
+                    strokeWidth={1.5}
+                  />
+                </g>
+              );
+            })}
+
             {GEO.kotaLabel.map((kota) => (
               <text
                 key={kota.nama}
@@ -405,6 +434,12 @@ export function JakartaMap({
               <p className="mt-0.5 text-sm font-semibold text-card-foreground">
                 {info.nama}
               </p>
+              {baru.has(info.code) && (
+                <span className="mt-1 inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[9px] font-medium text-primary">
+                  <span className="size-1 rounded-full bg-primary" />
+                  Data baru
+                </span>
+              )}
               <dl className="mt-2 space-y-1 border-t border-border/60 pt-1.5">
                 <div className="flex justify-between gap-3">
                   <dt className="text-muted-foreground">Dana</dt>

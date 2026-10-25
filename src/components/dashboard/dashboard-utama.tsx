@@ -16,6 +16,7 @@ import { RingkasanWilayah } from "@/components/dashboard/ringkasan-wilayah";
 import { PanelTerkunci } from "@/components/dashboard/panel-terkunci";
 import { StatusAkses } from "@/components/dashboard/status-akses";
 import { useSesiTiruan } from "@/lib/dashboard/use-sesi";
+import { KODE_BARU } from "@/lib/dashboard/pembaruan";
 import { hakSesi } from "@/lib/dashboard/auth-tiruan";
 import { StatistikUtama } from "@/components/dashboard/statistik-utama";
 import { FilterBar } from "@/components/dashboard/filter-bar";
@@ -39,6 +40,7 @@ import { bacaFilterDariQuery, filterKeQuery } from "@/lib/dashboard/ekspor";
  * memilih wilayah/program/periode langsung mengubah kartu dan warna peta.
  */
 export function DashboardUtama() {
+  const BARU = new Set<string>(KODE_BARU);
   const sesi = useSesiTiruan();
   const [filter, setFilter] = useState<FilterState>(FILTER_AWAL);
   const [dipilih, setDipilih] = useState<string | null>(null);
@@ -218,6 +220,7 @@ export function DashboardUtama() {
                 sorotEksternal={hoverDaftar}
                 onHoverWilayah={setHoverPeta}
                 peringkat={peringkat.map((item) => item.code)}
+                baru={BARU}
                 totalDana={total.dana}
                 footer={
                   <PetaLegenda

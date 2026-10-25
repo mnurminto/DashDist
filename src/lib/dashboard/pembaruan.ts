@@ -28,3 +28,17 @@ export const PEMBARUAN_TERBARU: readonly PembaruanData[] = [
     waktu: "2026-10-22T04:20:00.000Z",
   },
 ];
+
+/**
+ * Kecamatan yang datanya baru masuk (contoh). Dipakai untuk menandai peta
+ * dengan titik berdenyut dan chip "baru" di daftar wilayah.
+ */
+export const KODE_BARU: readonly string[] = [
+  "id3172080", // Cakung
+  "id3171010", // Jagakarsa
+  "id3101010", // Kepulauan Seribu Selatan
+];
+
+export function apakahBaru(kode: string) {
+  return KODE_BARU.includes(kode);
+}

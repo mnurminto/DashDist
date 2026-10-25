@@ -63,6 +63,15 @@ export function GrafikTren() {
         <p className="text-[11px] text-muted-foreground">
           total {rentang === "bulanan" ? "seluruh bulan" : "seluruh tahun"}
         </p>
+        {data.length > 0 && (
+          <span className="ml-auto inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+            <span
+              className="size-1.5 rounded-full bg-primary"
+              aria-hidden="true"
+            />
+            data terbaru: {data[data.length - 1].label}
+          </span>
+        )}
       </div>
       <GrafikGaris
         data={data}

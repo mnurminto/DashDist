@@ -24,6 +24,14 @@ type Props = {
   skala: Skala;
   /** Kalau diisi, hanya kelas warna ini yang ditonjolkan. */
   kelasDisorot?: number | null;
+  /** Kode wilayah yang disorot dari panel luar (mis. daftar peringkat). */
+  sorotEksternal?: string | null;
+  /** Memberi tahu panel luar wilayah mana yang sedang di-hover. */
+  onHoverWilayah?: (kode: string | null) => void;
+  /** Kode kecamatan teratas, ditandai dengan nomor di peta. */
+  peringkat?: readonly string[];
+  /** Total dana seluruh DKI, untuk menghitung porsi pada tooltip. */
+  totalDana?: number;
 };
 
 export function JakartaMap({
@@ -34,6 +42,10 @@ export function JakartaMap({
   nilai,
   skala,
   kelasDisorot = null,
+  sorotEksternal = null,
+  onHoverWilayah,
+  peringkat = [],
+  totalDana = 0,
 }: Props) {
   const wadah = useRef<HTMLDivElement>(null);
   const kartu = useRef<HTMLDivElement>(null);
@@ -102,8 +114,17 @@ export function JakartaMap({
 
   // Skala warna datang dari halaman induk supaya legenda dan peta selalu sama.
 
-  const sedangAktif = sorot?.kode ?? dipilih;
+  const sedangAktif = sorot?.kode ?? sorotEksternal ?? dipilih;
   const info = sorot ? dataByCode.get(sorot.kode) : null;
+
+  // Titik tengah tiap kecamatan, untuk menaruh penanda peringkat.
+  const pusatByCode = useMemo(() => {
+    const hasil = new Map<string, { x: number; y: number }>();
+    for (const kecamatan of GEO.kecamatan) {
+      hasil.set(kecamatan.code, kecamatan.pusat);
+    }
+    return hasil;
+  }, []);
 
   function pilih(kode: string) {
     onPilih(dipilih === kode ? null : kode);
@@ -175,11 +196,14 @@ export function JakartaMap({
             pilih(kode);
           }
         }}
+        onMouseEnter={() => onHoverWilayah?.(kode)}
         onMouseMove={(e) => setSorot({ kode, ...posisiTooltip(e) })}
-        onMouseLeave={() =>
-          setSorot((current) => (current?.kode === kode ? null : current))
-        }
+        onMouseLeave={() => {
+          setSorot((current) => (current?.kode === kode ? null : current));
+          onHoverWilayah?.(null);
+        }}
         onFocus={() => {
+          onHoverWilayah?.(kode);
           // Untuk pengguna keyboard: tampilkan kartu di titik tengah wilayah.
           const rect = wadah.current?.getBoundingClientRect();
           const skala = rect ? rect.width / GEO.viewBox.width : 0;
@@ -194,9 +218,10 @@ export function JakartaMap({
               : { kode, x: 0, y: 0 },
           );
         }}
-        onBlur={() =>
-          setSorot((current) => (current?.kode === kode ? null : current))
-        }
+        onBlur={() => {
+          setSorot((current) => (current?.kode === kode ? null : current));
+          onHoverWilayah?.(null);
+        }}
       >
         <title>{label}</title>
       </path>
@@ -273,6 +298,44 @@ export function JakartaMap({
                 pusat: wilayah.pusat,
               }),
             )}
+
+            {/* Penanda nomor untuk wilayah dengan penyaluran terbesar. */}
+            {peringkat.map((kode, i) => {
+              const pusat = pusatByCode.get(kode);
+              if (!pusat) return null;
+              return (
+                <g
+                  key={`peringkat-${kode}`}
+                  className="pointer-events-none hidden sm:block"
+                  aria-hidden="true"
+                >
+                  <circle
+                    cx={pusat.x}
+                    cy={pusat.y}
+                    r={22}
+                    fill="rgba(195,176,100,0.16)"
+                  />
+                  <circle
+                    cx={pusat.x}
+                    cy={pusat.y}
+                    r={14}
+                    fill="#c3b064"
+                    stroke="#0d0d0d"
+                    strokeWidth={2.5}
+                  />
+                  <text
+                    x={pusat.x}
+                    y={pusat.y + 5}
+                    textAnchor="middle"
+                    fontSize={15}
+                    fontWeight={700}
+                    fill="#15150f"
+                  >
+                    {i + 1}
+                  </text>
+                </g>
+              );
+            })}
 
             {GEO.kotaLabel.map((kota) => (
               <text
@@ -355,6 +418,17 @@ export function JakartaMap({
                     {formatAngka(info.penerima)}
                   </dd>
                 </div>
+                {totalDana > 0 && (
+                  <div className="flex justify-between gap-3">
+                    <dt className="text-muted-foreground">Porsi DKI</dt>
+                    <dd className="font-medium text-card-foreground tabular-nums">
+                      {((info.dana / totalDana) * 100).toLocaleString("id-ID", {
+                        maximumFractionDigits: 1,
+                      })}
+                      %
+                    </dd>
+                  </div>
+                )}
               </dl>
               <span
                 aria-hidden="true"

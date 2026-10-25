@@ -35,6 +35,8 @@ export function DashboardUtama() {
   const [filter, setFilter] = useState<FilterState>(FILTER_AWAL);
   const [dipilih, setDipilih] = useState<string | null>(null);
   const [kelasDisorot, setKelasDisorot] = useState<number | null>(null);
+  const [hoverPeta, setHoverPeta] = useState<string | null>(null);
+  const [hoverDaftar, setHoverDaftar] = useState<string | null>(null);
 
   const baris = useMemo(() => saring(filter), [filter]);
   const total = useMemo(() => ringkasTotal(baris), [baris]);
@@ -158,6 +160,10 @@ export function DashboardUtama() {
                 nilai={perWilayah}
                 skala={skala}
                 kelasDisorot={kelasDisorot}
+                sorotEksternal={hoverDaftar}
+                onHoverWilayah={setHoverPeta}
+                peringkat={peringkat.map((item) => item.code)}
+                totalDana={total.dana}
                 footer={
                   <PetaLegenda
                     kelas={skala.kelas}
@@ -183,6 +189,8 @@ export function DashboardUtama() {
             data={peringkat}
             aktif={kodeAktif}
             onPilih={pilihWilayah}
+            sorot={hoverPeta}
+            onHover={setHoverDaftar}
           />
         </aside>
       </div>

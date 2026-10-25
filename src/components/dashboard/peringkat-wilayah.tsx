@@ -8,13 +8,23 @@ type Props = {
   data: readonly WilayahRingkas[];
   aktif?: string | null;
   onPilih?: (kode: string) => void;
+  /** Kode yang sedang disorot dari peta. */
+  sorot?: string | null;
+  /** Memberi tahu peta wilayah mana yang sedang di-hover di daftar. */
+  onHover?: (kode: string | null) => void;
 };
 
 /**
  * Panel kanan: kecamatan dengan penyaluran terbesar pada filter aktif.
  * Batang kecil membantu membandingkan tanpa harus membaca angkanya.
  */
-export function PeringkatWilayah({ data, aktif, onPilih }: Props) {
+export function PeringkatWilayah({
+  data,
+  aktif,
+  onPilih,
+  sorot,
+  onHover,
+}: Props) {
   if (data.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-border/80 bg-card/40 p-4">
@@ -42,14 +52,24 @@ export function PeringkatWilayah({ data, aktif, onPilih }: Props) {
       <ol className="mt-3 space-y-2.5">
         {data.map((wilayah, i) => {
           const terpilih = aktif === wilayah.code;
+          const disorot = sorot === wilayah.code;
           return (
             <li key={wilayah.code}>
               <button
                 type="button"
                 onClick={() => onPilih?.(wilayah.code)}
-                className={`w-full rounded-lg px-1.5 py-1.5 text-left transition-colors hover:bg-secondary/60 focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-none ${
-                  terpilih ? "bg-secondary/70" : ""
+                onMouseEnter={() => onHover?.(wilayah.code)}
+                onMouseLeave={() => onHover?.(null)}
+                onFocus={() => onHover?.(wilayah.code)}
+                onBlur={() => onHover?.(null)}
+                className={`w-full rounded-lg px-1.5 py-1.5 text-left transition-colors focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-none ${
+                  terpilih
+                    ? "bg-secondary/70"
+                    : disorot
+                      ? "bg-secondary/40"
+                      : "hover:bg-secondary/60"
                 }`}
+                data-sorot={disorot ? "1" : "0"}
                 aria-pressed={terpilih}
               >
                 <div className="flex items-baseline justify-between gap-2">

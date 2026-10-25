@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Download, Share2 } from "lucide-react";
+import Link from "next/link";
+import { Check, Download, FileText, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   bacaFilterDariQuery,
@@ -68,6 +69,9 @@ export function AksiLaporan({ filter, baris }: Props) {
 
   /** Tautan yang bisa dibuka ulang dari bilah alamat. */
   const pratinjauTautan = filterKeQuery(filter);
+  const tautanLaporan = pratinjauTautan
+    ? `/laporan?${pratinjauTautan}&cetak=1`
+    : "/laporan?cetak=1";
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -80,6 +84,17 @@ export function AksiLaporan({ filter, baris }: Props) {
       >
         <Download aria-hidden="true" />
         Unduh CSV
+      </Button>
+      <Button asChild variant="outline" size="sm">
+        <Link
+          href={tautanLaporan}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Buka laporan siap cetak, lalu pilih Simpan sebagai PDF"
+        >
+          <FileText aria-hidden="true" />
+          Unduh PDF
+        </Link>
       </Button>
       <Button type="button" variant="outline" size="sm" onClick={bagikan}>
         <Share2 aria-hidden="true" />

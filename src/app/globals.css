@@ -107,3 +107,34 @@
     background-size: 16px;
   }
 }
+
+/* Laporan dicetak sebagai dokumen terang, bukan tema gelap dashboard. */
+@media print {
+  @page {
+    margin: 14mm;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+  }
+
+  .cetak-sembunyi {
+    display: none !important;
+  }
+
+  .lembar-laporan {
+    box-shadow: none !important;
+  }
+
+  /* Pastikan tabel tidak terpotong di tengah baris. */
+  tr,
+  td,
+  th {
+    break-inside: avoid;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+}

@@ -22,6 +22,8 @@ type Props = {
   nilai: Map<string, WilayahRingkas>;
   /** Skala warna yang dipakai peta dan legenda. */
   skala: Skala;
+  /** Kalau diisi, hanya kelas warna ini yang ditonjolkan. */
+  kelasDisorot?: number | null;
 };
 
 export function JakartaMap({
@@ -31,6 +33,7 @@ export function JakartaMap({
   onPilih,
   nilai,
   skala,
+  kelasDisorot = null,
 }: Props) {
   const wadah = useRef<HTMLDivElement>(null);
   const kartu = useRef<HTMLDivElement>(null);
@@ -149,11 +152,16 @@ export function JakartaMap({
         key={kode}
         d={path}
         fill={TINGKAT_WARNA[tingkat]}
+        fillOpacity={
+          kelasDisorot !== null && tingkat !== kelasDisorot && !disorot
+            ? 0.22
+            : 1
+        }
         stroke={disorot ? "#efeeee" : (opsi?.stroke ?? "#0d0d0d")}
         strokeWidth={disorot ? 1.8 : 1}
         strokeLinejoin="round"
         className={cn(
-          "cursor-pointer transition-[filter,stroke,stroke-width] duration-200 outline-none",
+          "cursor-pointer transition-[filter,stroke,stroke-width,fill-opacity] duration-200 outline-none",
           disorot && "drop-shadow-[0_0_9px_rgba(195,176,100,0.45)]",
         )}
         tabIndex={0}
@@ -253,6 +261,12 @@ export function JakartaMap({
             role="group"
             aria-label="Peta sebaran bantuan per kecamatan di DKI Jakarta"
             onMouseLeave={() => setSorot(null)}
+            onKeyDown={(e) => {
+              if (e.key === "Escape" && dipilih) {
+                e.stopPropagation();
+                onPilih(null);
+              }
+            }}
           >
             {GEO.kecamatan.map((wilayah) =>
               renderWilayah(wilayah.code, wilayah.path, {

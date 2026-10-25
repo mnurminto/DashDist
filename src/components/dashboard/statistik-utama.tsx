@@ -24,10 +24,17 @@ type Props = {
   wilayah: WilayahRingkas | null;
   /** True kalau ada filter aktif selain pilihan wilayah. */
   adaFilter: boolean;
+  /** Kalau diisi, tampilkan tombol untuk kembali ke ringkasan DKI. */
+  onBersihkan?: () => void;
 };
 
 /** Kartu ringkasan angka: total DKI Jakarta, atau satu wilayah terpilih. */
-export function StatistikUtama({ total, wilayah, adaFilter }: Props) {
+export function StatistikUtama({
+  total,
+  wilayah,
+  adaFilter,
+  onBersihkan,
+}: Props) {
   const jumlahKota = new Set(KECAMATAN.map((kecamatan) => kecamatan.kota)).size;
 
   const penerima = wilayah?.penerima ?? total.penerima;
@@ -85,7 +92,7 @@ export function StatistikUtama({ total, wilayah, adaFilter }: Props) {
       aria-live="polite"
       className="mt-7 scroll-mt-24"
     >
-      <div className="mb-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+      <div className="mb-3 flex flex-wrap items-center gap-x-2 gap-y-1">
         <h2 className="text-[11px] font-medium tracking-[0.16em] text-muted-foreground uppercase">
           {wilayah
             ? `Ringkasan Kecamatan ${wilayah.nama}`
@@ -98,6 +105,15 @@ export function StatistikUtama({ total, wilayah, adaFilter }: Props) {
               ? "· sesuai filter"
               : "· seluruh wilayah & program"}
         </p>
+        {wilayah && onBersihkan && (
+          <button
+            type="button"
+            onClick={onBersihkan}
+            className="ml-auto rounded-full border border-border bg-secondary/40 px-2.5 py-1 text-[10px] font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-none"
+          >
+            Kembali ke DKI
+          </button>
+        )}
       </div>
 
       <ul
@@ -111,6 +127,10 @@ export function StatistikUtama({ total, wilayah, adaFilter }: Props) {
               key={item.label}
               className="relative overflow-hidden rounded-2xl border border-border bg-card/80 p-5 transition-colors hover:border-primary/25"
             >
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent"
+              />
               <div className="flex items-start justify-between gap-2">
                 <p className="text-[10px] font-medium tracking-[0.16em] text-muted-foreground uppercase">
                   {item.label}

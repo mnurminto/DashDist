@@ -34,6 +34,7 @@ import {
 export function DashboardUtama() {
   const [filter, setFilter] = useState<FilterState>(FILTER_AWAL);
   const [dipilih, setDipilih] = useState<string | null>(null);
+  const [kelasDisorot, setKelasDisorot] = useState<number | null>(null);
 
   const baris = useMemo(() => saring(filter), [filter]);
   const total = useMemo(() => ringkasTotal(baris), [baris]);
@@ -80,11 +81,13 @@ export function DashboardUtama() {
   function ubahFilter(berikutnya: FilterState) {
     setFilter(berikutnya);
     setDipilih(null);
+    setKelasDisorot(null);
   }
 
   function reset() {
     setFilter(FILTER_AWAL);
     setDipilih(null);
+    setKelasDisorot(null);
   }
 
   return (
@@ -101,6 +104,7 @@ export function DashboardUtama() {
           total={total}
           wilayah={wilayah}
           adaFilter={filter.program !== "semua" || filter.periode !== "semua"}
+          onBersihkan={() => pilihWilayah(null)}
         />
       </div>
 
@@ -153,7 +157,14 @@ export function DashboardUtama() {
                 onPilih={pilihWilayah}
                 nilai={perWilayah}
                 skala={skala}
-                footer={<PetaLegenda kelas={skala.kelas} />}
+                kelasDisorot={kelasDisorot}
+                footer={
+                  <PetaLegenda
+                    kelas={skala.kelas}
+                    disorot={kelasDisorot}
+                    onSorot={setKelasDisorot}
+                  />
+                }
               />
             )}
           </CardContent>

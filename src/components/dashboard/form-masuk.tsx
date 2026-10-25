@@ -6,11 +6,8 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  AKUN_TIRUAN,
-  masukTiruan,
-  simpanSesi,
-} from "@/lib/dashboard/auth-tiruan";
+import { AKUN_TIRUAN, simpanSesi } from "@/lib/dashboard/auth-tiruan";
+import { masukLewatApi } from "@/lib/dashboard/auth-api";
 
 type Props = { /** Halaman tujuan setelah berhasil masuk. */ tujuan?: string };
 
@@ -26,17 +23,14 @@ export function FormMasuk({ tujuan = "/" }: Props) {
     setGalat(null);
     setMemproses(true);
 
-    // Jeda kecil supaya terasa seperti permintaan sungguhan.
-    await new Promise((resolve) => setTimeout(resolve, 350));
-
-    const pengguna = masukTiruan(email, sandi);
-    if (!pengguna) {
-      setGalat("Email atau kata sandi tidak cocok. Coba akun contoh di bawah.");
+    const hasil = await masukLewatApi(email, sandi);
+    if (!hasil.ok) {
+      setGalat(`${hasil.pesan} Coba akun contoh di bawah.`);
       setMemproses(false);
       return;
     }
 
-    simpanSesi(pengguna);
+    simpanSesi(hasil.pengguna);
     router.push(tujuan);
   }
 

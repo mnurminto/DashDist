@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth";
 import { withApiSession } from "@/lib/api";
+import { bolehLihatRinci } from "@/lib/otorisasi";
 
 export const runtime = "nodejs";
 
@@ -11,13 +12,8 @@ export const runtime = "nodejs";
  */
 export function GET(request: Request) {
   return withApiSession(request, async (session) => {
-    const [penerima, catatan] = await Promise.all([
-      auth.api.userHasPermission({
-        body: {
-          userId: session.user.id,
-          permissions: { penyaluran: ["read-penerima"] },
-        },
-      }),
+    const [lihatPenerima, catatan] = await Promise.all([
+      bolehLihatRinci(session.user.id),
       auth.api.userHasPermission({
         body: {
           userId: session.user.id,
@@ -36,7 +32,7 @@ export function GET(request: Request) {
           emailTerverifikasi: session.user.emailVerified,
         },
         hak: {
-          lihatPenerima: penerima.success,
+          lihatPenerima: lihatPenerima,
           bacaCatatan: catatan.success,
         },
         sesi: {

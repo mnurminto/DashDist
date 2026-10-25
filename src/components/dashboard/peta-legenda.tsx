@@ -1,11 +1,16 @@
-import { SKALA } from "@/lib/dashboard/mock-data";
+import type { KelasWarna } from "@/lib/dashboard/skala-warna";
 import { formatRupiahRingkas } from "@/lib/dashboard/format";
+
+type Props = {
+  /** Kelas warna dari skala yang dipakai peta saat ini. */
+  kelas: readonly KelasWarna[];
+};
 
 /**
  * Legenda warna peta: menjelaskan arti tiap tingkat warna.
  * Warnanya diambil dari skala yang sama dengan peta.
  */
-export function PetaLegenda() {
+export function PetaLegenda({ kelas: daftarKelas }: Props) {
   return (
     <div className="mt-4 border-t pt-4">
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
@@ -13,11 +18,11 @@ export function PetaLegenda() {
           Dana tersalurkan
         </span>
         <ul className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
-          {SKALA.kelas.map((kelas) => {
+          {daftarKelas.map((kelas) => {
             const label =
               kelas.sampai === null
                 ? `≥ ${formatRupiahRingkas(kelas.dari)}`
-                : kelas.dari === SKALA.kelas[0].dari
+                : kelas.dari === daftarKelas[0].dari
                   ? `< ${formatRupiahRingkas(kelas.sampai)}`
                   : `${formatRupiahRingkas(kelas.dari)} – ${formatRupiahRingkas(kelas.sampai)}`;
 

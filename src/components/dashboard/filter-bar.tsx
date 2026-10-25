@@ -3,28 +3,11 @@
 import { RotateCcw } from "lucide-react";
 import { cn } from "cn";
 import { KECAMATAN, PROGRAM } from "@/lib/dashboard/mock-data";
-
-/** Nilai filter yang dipakai dashboard. "semua" berarti tanpa penyaringan. */
-export type FilterState = {
-  /** Kode kecamatan, atau "semua". */
-  wilayah: string;
-  /** Id program, atau "semua". */
-  program: string;
-  /** Tahun, atau "semua". */
-  periode: string;
-};
-
-export const FILTER_AWAL: FilterState = {
-  wilayah: "semua",
-  program: "semua",
-  periode: "semua",
-};
-
-export const TAHUN_TERSEDIA = ["2026", "2025", "2024"] as const;
-
-export function jumlahFilterAktif(nilai: FilterState): number {
-  return Object.values(nilai).filter((v) => v !== "semua").length;
-}
+import {
+  jumlahFilterAktif,
+  TAHUN_TERSEDIA,
+  type FilterState,
+} from "@/lib/dashboard/penyaluran";
 
 type Props = {
   nilai: FilterState;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Card,
   CardContent,
@@ -11,37 +11,67 @@ import {
 import { JakartaMap } from "@/components/dashboard/jakarta-map";
 import { PetaLegenda } from "@/components/dashboard/peta-legenda";
 import { StatistikUtama } from "@/components/dashboard/statistik-utama";
+import { FilterBar } from "@/components/dashboard/filter-bar";
+import { SKALA } from "@/lib/dashboard/mock-data";
 import {
-  FilterBar,
   FILTER_AWAL,
+  ringkasPerWilayah,
+  ringkasTotal,
+  saring,
   type FilterState,
-} from "@/components/dashboard/filter-bar";
-import { KECAMATAN } from "@/lib/dashboard/mock-data";
+} from "@/lib/dashboard/penyaluran";
 
 /**
  * Bagian utama dashboard: filter, kartu statistik, dan peta.
- * Pilihan wilayah disimpan di sini supaya kartu statistik ikut berubah
- * saat pengguna mengklik kecamatan di peta.
+ *
+ * Semua angka dihitung dari buku besar contoh yang sudah difilter, jadi
+ * memilih wilayah/program/periode langsung mengubah kartu dan warna peta.
  */
 export function DashboardUtama() {
-  const [dipilih, setDipilih] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterState>(FILTER_AWAL);
+  const [dipilih, setDipilih] = useState<string | null>(null);
 
-  const wilayah = dipilih
-    ? (KECAMATAN.find((kecamatan) => kecamatan.code === dipilih) ?? null)
-    : null;
+  const baris = useMemo(() => saring(filter), [filter]);
+  const total = useMemo(() => ringkasTotal(baris), [baris]);
+  const perWilayah = useMemo(() => ringkasPerWilayah(baris), [baris]);
+
+  const kodeAktif = filter.wilayah !== "semua" ? filter.wilayah : dipilih;
+  const wilayah = kodeAktif ? (perWilayah.get(kodeAktif) ?? null) : null;
+
+  // Skala warna sengaja tetap (dari seluruh data) supaya warna antar-filter
+  // tetap bisa dibandingkan, dan legenda tidak berubah-ubah.
+  const skala = SKALA;
+
+  function pilihWilayah(kode: string | null) {
+    setDipilih(kode);
+    setFilter((sebelumnya) => ({ ...sebelumnya, wilayah: kode ?? "semua" }));
+  }
+
+  function ubahFilter(berikutnya: FilterState) {
+    setFilter(berikutnya);
+    setDipilih(null);
+  }
+
+  function reset() {
+    setFilter(FILTER_AWAL);
+    setDipilih(null);
+  }
 
   return (
     <>
       <FilterBar
         className="mt-8"
         nilai={filter}
-        onUbah={setFilter}
-        onReset={() => setFilter(FILTER_AWAL)}
+        onUbah={ubahFilter}
+        onReset={reset}
       />
 
       <div className="mt-5">
-        <StatistikUtama wilayah={wilayah} />
+        <StatistikUtama
+          total={total}
+          wilayah={wilayah}
+          adaFilter={filter.program !== "semua" || filter.periode !== "semua"}
+        />
       </div>
 
       <Card className="mt-5 gap-4 overflow-hidden py-0">
@@ -57,14 +87,18 @@ export function DashboardUtama() {
           <CardDescription>
             {wilayah
               ? `${wilayah.kota} · klik wilayah lain untuk berganti`
-              : `${KECAMATAN.length} kecamatan di DKI Jakarta, termasuk Kepulauan Seribu.`}
+              : total.wilayah === 0
+                ? "Tidak ada data untuk kombinasi filter ini."
+                : `${total.wilayah} kecamatan memiliki penyaluran pada filter ini.`}
           </CardDescription>
         </CardHeader>
         <CardContent className="pb-6">
           <JakartaMap
-            dipilih={dipilih}
-            onPilih={setDipilih}
-            footer={<PetaLegenda />}
+            dipilih={kodeAktif}
+            onPilih={pilihWilayah}
+            nilai={perWilayah}
+            skala={skala}
+            footer={<PetaLegenda kelas={skala.kelas} />}
           />
         </CardContent>
       </Card>

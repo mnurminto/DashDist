@@ -2,16 +2,12 @@ import {
   Banknote,
   Layers,
   MapPin,
-  Percent,
+  Receipt,
   Users,
   type LucideIcon,
 } from "lucide-react";
-import {
-  KECAMATAN,
-  PROGRAM,
-  RINGKASAN_DKI,
-  type Kecamatan,
-} from "@/lib/dashboard/mock-data";
+import { KECAMATAN } from "@/lib/dashboard/mock-data";
+import type { Ringkasan, WilayahRingkas } from "@/lib/dashboard/penyaluran";
 import { formatAngka, formatRupiah } from "@/lib/dashboard/format";
 
 type Kartu = {
@@ -22,18 +18,22 @@ type Kartu = {
 };
 
 type Props = {
-  /** Kalau dipilih, angka berubah menjadi ringkasan wilayah tersebut. */
-  wilayah?: Kecamatan | null;
+  /** Angka hasil filter (seluruh DKI atau satu wilayah). */
+  total: Ringkasan;
+  /** Terisi kalau pengguna memilih satu kecamatan. */
+  wilayah: WilayahRingkas | null;
+  /** True kalau ada filter aktif selain pilihan wilayah. */
+  adaFilter: boolean;
 };
 
 /** Kartu ringkasan angka: total DKI Jakarta, atau satu wilayah terpilih. */
-export function StatistikUtama({ wilayah }: Props) {
+export function StatistikUtama({ total, wilayah, adaFilter }: Props) {
   const jumlahKota = new Set(KECAMATAN.map((kecamatan) => kecamatan.kota)).size;
 
-  const penerima = wilayah?.penerima ?? RINGKASAN_DKI.penerima;
-  const dana = wilayah?.dana ?? RINGKASAN_DKI.dana;
-  const program = wilayah?.program ?? PROGRAM.length;
-  const porsiDana = wilayah ? (wilayah.dana / RINGKASAN_DKI.dana) * 100 : 0;
+  const penerima = wilayah?.penerima ?? total.penerima;
+  const dana = wilayah?.dana ?? total.dana;
+  const program = wilayah?.program ?? total.program;
+  const transaksi = wilayah?.transaksi ?? total.transaksi;
 
   const kartu: Kartu[] = [
     {
@@ -41,42 +41,45 @@ export function StatistikUtama({ wilayah }: Props) {
       nilai: `${formatAngka(penerima)} orang`,
       keterangan: wilayah
         ? `penerima di Kecamatan ${wilayah.nama}`
-        : `± ${formatAngka(Math.round(RINGKASAN_DKI.penerima / KECAMATAN.length))} orang per kecamatan`,
+        : `${formatAngka(transaksi)} transaksi penyaluran`,
       ikon: Users,
     },
     {
       label: "Dana tersalurkan",
       nilai: formatRupiah(dana),
-      keterangan: wilayah
-        ? `untuk penerima di Kecamatan ${wilayah.nama}`
-        : `${formatRupiah(Math.round(RINGKASAN_DKI.dana / RINGKASAN_DKI.penerima))} per penerima manfaat`,
+      keterangan:
+        penerima > 0
+          ? `${formatRupiah(Math.round(dana / penerima))} per penerima manfaat`
+          : "belum ada data pada filter ini",
       ikon: Banknote,
     },
     {
       label: "Program berjalan",
       nilai: `${program} program`,
       keterangan: wilayah
-        ? `program yang menyalurkan di wilayah ini`
-        : `rata-rata ${(RINGKASAN_DKI.program / KECAMATAN.length).toLocaleString("id-ID", { maximumFractionDigits: 1 })} program per kecamatan`,
+        ? "program yang menyalurkan di wilayah ini"
+        : adaFilter
+          ? "program yang menyalurkan pada filter ini"
+          : "program bantuan aktif menyalurkan",
       ikon: Layers,
     },
     wilayah
       ? {
-          label: "Porsi dana DKI",
-          nilai: `${porsiDana.toLocaleString("id-ID", { maximumFractionDigits: 1 })}%`,
-          keterangan: `dari total ${formatRupiah(RINGKASAN_DKI.dana)} di DKI Jakarta`,
-          ikon: Percent,
+          label: "Transaksi",
+          nilai: `${formatAngka(transaksi)} kali`,
+          keterangan: `penyaluran tercatat di Kecamatan ${wilayah.nama}`,
+          ikon: Receipt,
         }
       : {
           label: "Wilayah terjangkau",
-          nilai: `${KECAMATAN.length} kecamatan`,
-          keterangan: `${jumlahKota - 1} kota administrasi + Kepulauan Seribu`,
+          nilai: `${total.wilayah} kecamatan`,
+          keterangan: `dari ${KECAMATAN.length} kecamatan di ${jumlahKota} wilayah administrasi`,
           ikon: MapPin,
         },
   ];
 
   return (
-    <section aria-label="Ringkasan statistik bantuan">
+    <section aria-label="Ringkasan statistik bantuan" aria-live="polite">
       <div className="mb-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
         <h2 className="text-sm font-semibold tracking-tight">
           {wilayah
@@ -86,7 +89,9 @@ export function StatistikUtama({ wilayah }: Props) {
         <p className="text-xs text-muted-foreground">
           {wilayah
             ? `${wilayah.kota} · klik wilayah lain di peta untuk berganti`
-            : "akumulasi seluruh wilayah dan program"}
+            : adaFilter
+              ? "sesuai filter yang dipilih"
+              : "akumulasi seluruh wilayah dan program"}
         </p>
       </div>
 

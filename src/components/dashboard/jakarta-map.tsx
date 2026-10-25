@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Maximize2, Minimize2 } from "lucide-react";
 import { cn } from "cn";
-import { GEO, KECAMATAN, SKALA } from "@/lib/dashboard/mock-data";
+import { GEO, KECAMATAN } from "@/lib/dashboard/mock-data";
 import { formatAngka, formatRupiah } from "@/lib/dashboard/format";
-import { TINGKAT_WARNA } from "@/lib/dashboard/skala-warna";
+import { TINGKAT_WARNA, type Skala } from "@/lib/dashboard/skala-warna";
+import type { WilayahRingkas } from "@/lib/dashboard/penyaluran";
 import { RingkasanWilayah } from "@/components/dashboard/ringkasan-wilayah";
 
 type Sorot = { kode: string; x: number; y: number };
@@ -18,9 +19,20 @@ type Props = {
   dipilih: string | null;
   /** Dipanggil saat pengguna memilih atau menutup pilihan wilayah. */
   onPilih: (kode: string | null) => void;
+  /** Angka per kecamatan setelah filter diterapkan. */
+  nilai: Map<string, WilayahRingkas>;
+  /** Skala warna yang dipakai peta dan legenda. */
+  skala: Skala;
 };
 
-export function JakartaMap({ className, footer, dipilih, onPilih }: Props) {
+export function JakartaMap({
+  className,
+  footer,
+  dipilih,
+  onPilih,
+  nilai,
+  skala,
+}: Props) {
   const wadah = useRef<HTMLDivElement>(null);
   const kartu = useRef<HTMLDivElement>(null);
   const [sorot, setSorot] = useState<Sorot | null>(null);
@@ -66,10 +78,27 @@ export function JakartaMap({ className, footer, dipilih, onPilih }: Props) {
     setLayarPenuh((sebelumnya) => !sebelumnya);
   }
 
-  const dataByCode = useMemo(
-    () => new Map(KECAMATAN.map((kecamatan) => [kecamatan.code, kecamatan])),
-    [],
-  );
+  // Gabungkan metadata wilayah dengan angka hasil filter.
+  const dataByCode = useMemo(() => {
+    const hasil = new Map<string, WilayahRingkas>();
+    for (const kecamatan of KECAMATAN) {
+      hasil.set(
+        kecamatan.code,
+        nilai.get(kecamatan.code) ?? {
+          code: kecamatan.code,
+          nama: kecamatan.nama,
+          kota: kecamatan.kota,
+          penerima: 0,
+          dana: 0,
+          transaksi: 0,
+          program: 0,
+        },
+      );
+    }
+    return hasil;
+  }, [nilai]);
+
+  // Skala warna datang dari halaman induk supaya legenda dan peta selalu sama.
 
   const sedangAktif = sorot?.kode ?? dipilih;
   const info = sorot ? dataByCode.get(sorot.kode) : null;
@@ -102,7 +131,7 @@ export function JakartaMap({ className, footer, dipilih, onPilih }: Props) {
     const disorot = sedangAktif === kode;
     const label = `${data.nama}, ${data.kota}: ${formatRupiah(data.dana)} untuk ${formatAngka(data.penerima)} penerima`;
     const tingkat = Math.max(
-      SKALA.tingkat(data.dana),
+      skala.tingkat(data.dana),
       opsi?.tingkatMinimum ?? 0,
     );
 

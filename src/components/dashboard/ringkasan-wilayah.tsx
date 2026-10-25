@@ -1,8 +1,8 @@
-import type { Kecamatan } from "@/lib/dashboard/mock-data";
+import type { WilayahRingkas } from "@/lib/dashboard/penyaluran";
 import { formatAngka, formatRupiah } from "@/lib/dashboard/format";
 
 type Props = {
-  data: Kecamatan | null;
+  data: WilayahRingkas | null;
   onTutup?: () => void;
 };
 
@@ -64,7 +64,7 @@ export function RingkasanWilayah({ data, onTutup }: Props) {
         </div>
         <div className="flex items-baseline justify-between gap-3">
           <dt className="text-muted-foreground">Transaksi</dt>
-          <dd className="font-medium">{formatAngka(data.penyaluran)}</dd>
+          <dd className="font-medium">{formatAngka(data.transaksi)}</dd>
         </div>
         <div className="flex items-baseline justify-between gap-3">
           <dt className="text-muted-foreground">Program aktif</dt>

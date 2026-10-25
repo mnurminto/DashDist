@@ -5,6 +5,7 @@ import {
   getSebaran,
 } from "@/services/sebaran.service";
 import { sebaranQuerySchema } from "@/validators/sebaran";
+import { getPembaruanTerakhir } from "@/services/pembaruan.service";
 import { validasiFilter } from "@/services/filter.service";
 
 export const runtime = "nodejs";
@@ -26,10 +27,11 @@ export function GET(request: Request) {
 
       await validasiFilter(filter);
 
-      const [sebaran, teratas, perKota] = await Promise.all([
+      const [sebaran, teratas, perKota, pembaruan] = await Promise.all([
         getSebaran(filter),
         getPeringkatWilayah(filter, 5),
         getPerKota(filter),
+        getPembaruanTerakhir(),
       ]);
 
       return Response.json({
@@ -49,6 +51,8 @@ export function GET(request: Request) {
             wilayah: item.wilayah,
           })),
           diperbaruiPada: sebaran.diperbaruiPada,
+          /** Impor terakhir: waktu, judul, sumber, jumlah rekaman. */
+          pembaruan,
           publik: true,
         },
       });

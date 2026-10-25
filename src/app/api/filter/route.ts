@@ -1,6 +1,7 @@
 import { withPublicApi } from "@/lib/api";
 import { validasiFilter } from "@/services/filter.service";
 import { getPerKota, getSebaran } from "@/services/sebaran.service";
+import { getPembaruanTerakhir } from "@/services/pembaruan.service";
 import { filterQuerySchema } from "@/validators/filter";
 
 export const runtime = "nodejs";
@@ -25,9 +26,10 @@ export function GET(request: Request) {
 
     await validasiFilter(filter);
 
-    const [sebaran, perKota] = await Promise.all([
+    const [sebaran, perKota, pembaruan] = await Promise.all([
       getSebaran(filter),
       getPerKota(filter),
+      getPembaruanTerakhir(),
     ]);
 
     return Response.json({
@@ -44,6 +46,8 @@ export function GET(request: Request) {
         /** True kalau filter sah tetapi memang belum ada penyaluran. */
         kosong: sebaran.total.transaksi === 0,
         diperbaruiPada: sebaran.diperbaruiPada,
+        /** Metadata impor terakhir (judul, jumlah rekaman, sumber). */
+        pembaruan,
       },
     });
   });

@@ -75,6 +75,41 @@ function labelBulan(tahun: number, bulan: number) {
   return `${namaBulan} ${tahun}`;
 }
 
+/** Peringkat wilayah berdasarkan dana, dibatasi `limit` teratas. */
+export async function getPeringkatWilayah(
+  filter: SebaranQuery,
+  limit: number,
+): Promise<WilayahSebaran[]> {
+  const baris = await db
+    .select({
+      kode: wilayah.kode,
+      nama: wilayah.nama,
+      kota: sql<string>`coalesce(${induk.nama}, ${wilayah.nama})`,
+      penerima: sql<number>`count(distinct ${penyaluranBantuan.penerimaId})::int`,
+      dana: DANA,
+      transaksi: sql<number>`count(*)::int`,
+      program: sql<number>`count(distinct ${penyaluranBantuan.programId})::int`,
+    })
+    .from(penyaluranBantuan)
+    .innerJoin(wilayah, eq(penyaluranBantuan.wilayahId, wilayah.id))
+    .leftJoin(induk, eq(wilayah.parentId, induk.id))
+    .innerJoin(program, eq(penyaluranBantuan.programId, program.id))
+    .where(syarat(filter))
+    .groupBy(wilayah.kode, wilayah.nama, induk.nama)
+    .orderBy(sql`sum(${penyaluranBantuan.jumlahDana}) desc`)
+    .limit(limit);
+
+  return baris.map((item) => ({
+    kode: item.kode,
+    nama: item.nama,
+    kota: item.kota,
+    penerima: Number(item.penerima),
+    dana: Number(item.dana),
+    transaksi: Number(item.transaksi),
+    program: Number(item.program),
+  }));
+}
+
 /** Deret dana per bulan (urut lama → baru) untuk grafik tren. */
 export async function getBulanan(
   filter: SebaranQuery,

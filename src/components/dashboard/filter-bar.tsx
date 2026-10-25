@@ -2,10 +2,15 @@
 
 import { RotateCcw, X } from "lucide-react";
 import { cn } from "cn";
-import { KECAMATAN, PROGRAM } from "@/lib/dashboard/mock-data";
+import {
+  cariOpsiProgram,
+  cariOpsiWilayah,
+  OPSI_PERIODE,
+  OPSI_PROGRAM,
+  OPSI_WILAYAH_PER_KOTA,
+} from "@/lib/dashboard/opsi-filter";
 import {
   jumlahFilterAktif,
-  TAHUN_TERSEDIA,
   type FilterState,
 } from "@/lib/dashboard/penyaluran";
 
@@ -20,14 +25,8 @@ type Props = {
 export function FilterBar({ nilai, onUbah, onReset, className }: Props) {
   const aktif = jumlahFilterAktif(nilai);
 
-  const kotaList = [...new Set(KECAMATAN.map((kecamatan) => kecamatan.kota))];
-
-  const namaWilayah = KECAMATAN.find(
-    (kecamatan) => kecamatan.code === nilai.wilayah,
-  )?.nama;
-  const namaProgram = PROGRAM.find(
-    (program) => program.id === nilai.program,
-  )?.nama;
+  const namaWilayah = cariOpsiWilayah(nilai.wilayah)?.label;
+  const namaProgram = cariOpsiProgram(nilai.program)?.label;
 
   const chip: { kunci: keyof FilterState; label: string }[] = [];
   if (nilai.wilayah !== "semua") {
@@ -87,15 +86,13 @@ export function FilterBar({ nilai, onUbah, onReset, className }: Props) {
             className="h-9 w-full rounded-md border bg-background px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
           >
             <option value="semua">Semua kecamatan</option>
-            {kotaList.map((kota) => (
-              <optgroup key={kota} label={kota}>
-                {KECAMATAN.filter((kecamatan) => kecamatan.kota === kota).map(
-                  (kecamatan) => (
-                    <option key={kecamatan.code} value={kecamatan.code}>
-                      {kecamatan.nama}
-                    </option>
-                  ),
-                )}
+            {OPSI_WILAYAH_PER_KOTA.map((kelompok) => (
+              <optgroup key={kelompok.kota} label={kelompok.kota}>
+                {kelompok.wilayah.map((wilayah) => (
+                  <option key={wilayah.value} value={wilayah.value}>
+                    {wilayah.label}
+                  </option>
+                ))}
               </optgroup>
             ))}
           </select>
@@ -115,9 +112,9 @@ export function FilterBar({ nilai, onUbah, onReset, className }: Props) {
             className="h-9 w-full rounded-md border bg-background px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
           >
             <option value="semua">Semua program</option>
-            {PROGRAM.map((program) => (
-              <option key={program.id} value={program.id}>
-                {program.nama}
+            {OPSI_PROGRAM.map((program) => (
+              <option key={program.value} value={program.value}>
+                {program.label}
               </option>
             ))}
           </select>
@@ -137,9 +134,9 @@ export function FilterBar({ nilai, onUbah, onReset, className }: Props) {
             className="h-9 w-full rounded-md border bg-background px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
           >
             <option value="semua">Semua periode</option>
-            {TAHUN_TERSEDIA.map((tahun) => (
-              <option key={tahun} value={tahun}>
-                Tahun {tahun}
+            {OPSI_PERIODE.map((periode) => (
+              <option key={periode.value} value={periode.value}>
+                {periode.label}
               </option>
             ))}
           </select>

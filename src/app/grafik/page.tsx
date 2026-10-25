@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ChartSpline } from "lucide-react";
 import { GrafikTren } from "@/components/dashboard/grafik-tren";
+import { GrafikWilayah } from "@/components/dashboard/grafik-wilayah";
 import { KartuGrafik } from "@/components/dashboard/kartu-grafik";
 import { Shell } from "@/components/dashboard/shell";
 
@@ -56,12 +57,7 @@ export default function GrafikPage() {
       >
         <GrafikTren />
 
-        <KartuGrafik
-          judul="Perbandingan wilayah"
-          keterangan="Kecamatan dengan penyaluran terbesar."
-        >
-          <SlotGrafik tinggi="h-80" />
-        </KartuGrafik>
+        <GrafikWilayah />
 
         <KartuGrafik
           judul="Distribusi per program"

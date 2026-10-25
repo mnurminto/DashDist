@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Users } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { ProfilWilayah } from "@/components/dashboard/profil-wilayah";
 import { RincianProgram } from "@/components/dashboard/rincian-program";
+import { TabelPenerima } from "@/components/dashboard/tabel-penerima";
 import { TabsWilayah } from "@/components/dashboard/tabs-wilayah";
 import { Shell } from "@/components/dashboard/shell";
 import { StatistikUtama } from "@/components/dashboard/statistik-utama";
 import { Button } from "@/components/ui/button";
 import { KECAMATAN, PROGRAM } from "@/lib/dashboard/mock-data";
+import { daftarPenerimaContoh } from "@/lib/dashboard/penerima-contoh";
 import {
   ringkasPerWilayah,
   ringkasTotal,
@@ -144,14 +146,7 @@ export default async function DetailWilayahPage({ params }: Props) {
             {
               id: "penerima",
               label: "Penerima",
-              isi: (
-                <div className="flex h-56 items-center justify-center rounded-xl border border-dashed border-border/70 bg-background/40">
-                  <Users
-                    className="size-5 text-muted-foreground/50"
-                    aria-hidden="true"
-                  />
-                </div>
-              ),
+              isi: <TabelPenerima data={daftarPenerimaContoh(kode)} />,
             },
             {
               id: "bandingkan",

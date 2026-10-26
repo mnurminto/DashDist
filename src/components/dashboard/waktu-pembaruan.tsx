@@ -65,7 +65,7 @@ export function WaktuPembaruan({
         <span
           className={cn(
             "relative inline-flex size-1.5 rounded-full",
-            usang ? "bg-[#c3b064]/50" : "bg-primary",
+            usang ? "bg-[#a08d3f]/60" : "bg-primary",
           )}
         />
       </span>
@@ -74,7 +74,7 @@ export function WaktuPembaruan({
         <time
           dateTime={waktu}
           suppressHydrationWarning
-          className={cn(usang ? "text-[#c3b064]" : "text-foreground")}
+          className={cn(usang ? "text-[#8a7a2e]" : "text-foreground")}
         >
           {jarak(selisih)}
         </time>

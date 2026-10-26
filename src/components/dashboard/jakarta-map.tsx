@@ -181,7 +181,7 @@ export function JakartaMap({
             ? 0.22
             : 1
         }
-        stroke={disorot ? "#efeeee" : (opsi?.stroke ?? "#0d0d0d")}
+        stroke={disorot ? "#1c1b16" : (opsi?.stroke ?? "#ffffff")}
         strokeWidth={disorot ? 1.8 : 1}
         strokeLinejoin="round"
         className={cn(
@@ -265,7 +265,7 @@ export function JakartaMap({
       >
         <div
           ref={wadah}
-          className="relative rounded-xl border border-border/50 bg-[#0c0c0c]"
+          className="relative rounded-xl border border-border/50 bg-[#f0eee6]"
         >
           {/* Latar "panggung" peta: glow hangat + grid halus. */}
           <div
@@ -273,7 +273,7 @@ export function JakartaMap({
             className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl"
             style={{
               backgroundImage:
-                "radial-gradient(circle at 52% 42%, rgba(195,176,100,0.12), transparent 60%), linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px)",
+                "radial-gradient(circle at 52% 42%, rgba(195,176,100,0.12), transparent 60%), linear-gradient(to right, rgba(28,27,22,0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(28,27,22,0.06) 1px, transparent 1px)",
               backgroundSize: "auto, 64px 64px, 64px 64px",
             }}
           />
@@ -323,7 +323,7 @@ export function JakartaMap({
                     cy={pusat.y}
                     r={14}
                     fill="#c3b064"
-                    stroke="#0d0d0d"
+                    stroke="#ffffff"
                     strokeWidth={2.5}
                   />
                   <text
@@ -359,7 +359,7 @@ export function JakartaMap({
                     cy={pusat.y}
                     r={4.5}
                     fill="#f0e7b6"
-                    stroke="#101010"
+                    stroke="#ffffff"
                     strokeWidth={1.5}
                   />
                 </g>
@@ -376,10 +376,10 @@ export function JakartaMap({
                 style={{
                   fontSize: 14,
                   fontWeight: 600,
-                  fill: "#d9d7ce",
+                  fill: "#4a483f",
                   paintOrder: "stroke",
-                  stroke: "#101010",
-                  strokeWidth: 4,
+                  stroke: "#f7f5ef",
+                  strokeWidth: 3,
                   strokeLinejoin: "round",
                   letterSpacing: "0.04em",
                   textTransform: "uppercase",

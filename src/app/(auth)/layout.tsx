@@ -30,10 +30,10 @@ export default async function AuthLayout({
           id="main-content"
           className="mx-auto flex min-h-[75svh] max-w-6xl items-center justify-center px-6 py-10"
         >
-          <div className="w-full max-w-md rounded-2xl border border-border bg-card/70 p-6 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.9)] backdrop-blur sm:p-8">
+          <div className="w-full max-w-md rounded-2xl border border-border bg-card/70 p-6 shadow-[0_20px_50px_-32px_rgba(28,27,22,0.35)] backdrop-blur sm:p-8">
             <span
               aria-hidden="true"
-              className="mb-6 block h-px w-full bg-gradient-to-r from-transparent via-white/15 to-transparent"
+              className="mb-6 block h-px w-full bg-gradient-to-r from-transparent via-foreground/10 to-transparent"
             />
             {children}
           </div>

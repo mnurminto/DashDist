@@ -135,7 +135,7 @@ export function StatistikUtama({
             >
               <span
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent"
+                className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent"
               />
               <div className="flex items-start justify-between gap-2">
                 <p className="text-[10px] font-medium tracking-[0.16em] text-muted-foreground uppercase">
@@ -205,15 +205,15 @@ function Sparkline({ nilai, label }: { nilai: number[]; label: string[] }) {
     >
       <defs>
         <linearGradient id="tren-dana" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#e0cf8a" stopOpacity="0.5" />
-          <stop offset="100%" stopColor="#e0cf8a" stopOpacity="0" />
+          <stop offset="0%" stopColor="#a89a52" stopOpacity="0.5" />
+          <stop offset="100%" stopColor="#a89a52" stopOpacity="0" />
         </linearGradient>
       </defs>
       <path d={area} fill="url(#tren-dana)" />
       <path
         d={garis}
         fill="none"
-        stroke="#d9c77c"
+        stroke="#8a7a2e"
         strokeWidth={1.6}
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -224,7 +224,7 @@ function Sparkline({ nilai, label }: { nilai: number[]; label: string[] }) {
           cx={x}
           cy={y}
           r={i === titik.length - 1 ? 2.2 : 1.5}
-          fill="#e9dfae"
+          fill="#7d6d24"
         />
       ))}
     </svg>

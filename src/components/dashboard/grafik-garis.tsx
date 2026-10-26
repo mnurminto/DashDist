@@ -101,7 +101,7 @@ export function GrafikGaris({
                 x2={LEBAR - PAD.kanan}
                 y1={y}
                 y2={y}
-                stroke="rgba(255,255,255,0.07)"
+                stroke="rgba(0,0,0,0.08)"
                 strokeWidth={1}
               />
               <text
@@ -122,7 +122,7 @@ export function GrafikGaris({
           <path
             d={garis}
             fill="none"
-            stroke="#d9c77c"
+            stroke="#8a7a2e"
             strokeWidth={2}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -139,8 +139,8 @@ export function GrafikGaris({
                 cx={posisiX(i)}
                 cy={posisiY(titik.nilai)}
                 r={aktif === i ? 4 : 2.5}
-                fill="#e9dfae"
-                stroke="#101010"
+                fill="#7d6d24"
+                stroke="#ffffff"
                 strokeWidth={1.5}
               />
             )}

@@ -84,13 +84,13 @@ export function BandingkanWilayah({ data, danaWilayah, rataRata }: Props) {
                 {formatRupiahRingkas(item.dana)}
               </span>
             </div>
-            <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-white/5">
+            <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-foreground/[0.07]">
               <div
                 className={cn(
                   "h-full rounded-full",
                   item.aktif
-                    ? "bg-gradient-to-r from-[#8c8a4c] to-[#e9dfae]"
-                    : "bg-gradient-to-r from-[#5d6238] to-[#c3b064]",
+                    ? "bg-gradient-to-r from-[#7d6d24] to-[#c3b064]"
+                    : "bg-gradient-to-r from-[#a89a52] to-[#7d6d24]",
                 )}
                 style={{
                   width: `${Math.max((item.dana / maks) * 100, 3)}%`,

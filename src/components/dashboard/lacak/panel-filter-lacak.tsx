@@ -59,7 +59,7 @@ export function PanelFilterLacak({ filter, onUbah, onReset }: Props) {
                 value={filter.dari}
                 max={filter.sampai}
                 onChange={(e) => ubah({ dari: e.target.value })}
-                className="h-8 border-border bg-[#141415] text-[11px]"
+                className="h-8 border-border bg-card text-[11px]"
               />
             </label>
             <label className="block">
@@ -71,7 +71,7 @@ export function PanelFilterLacak({ filter, onUbah, onReset }: Props) {
                 value={filter.sampai}
                 min={filter.dari}
                 onChange={(e) => ubah({ sampai: e.target.value })}
-                className="h-8 border-border bg-[#141415] text-[11px]"
+                className="h-8 border-border bg-card text-[11px]"
               />
             </label>
           </div>
@@ -84,7 +84,7 @@ export function PanelFilterLacak({ filter, onUbah, onReset }: Props) {
           <select
             value={filter.wilayah}
             onChange={(e) => ubah({ wilayah: e.target.value })}
-            className="select-dark mt-1.5 h-8 w-full appearance-none rounded-lg border border-border bg-[#141415] pr-8 pl-2.5 text-[11px] text-foreground outline-none focus-visible:border-primary/60 focus-visible:ring-[3px] focus-visible:ring-primary/20"
+            className="select-dark mt-1.5 h-8 w-full appearance-none rounded-lg border border-border bg-card pr-8 pl-2.5 text-[11px] text-foreground outline-none focus-visible:border-primary/60 focus-visible:ring-[3px] focus-visible:ring-primary/20"
           >
             <option value="semua">Semua kecamatan</option>
             {KOTA.map((kota) => (
@@ -106,7 +106,7 @@ export function PanelFilterLacak({ filter, onUbah, onReset }: Props) {
           <select
             value={filter.program}
             onChange={(e) => ubah({ program: e.target.value })}
-            className="select-dark mt-1.5 h-8 w-full appearance-none rounded-lg border border-border bg-[#141415] pr-8 pl-2.5 text-[11px] text-foreground outline-none focus-visible:border-primary/60 focus-visible:ring-[3px] focus-visible:ring-primary/20"
+            className="select-dark mt-1.5 h-8 w-full appearance-none rounded-lg border border-border bg-card pr-8 pl-2.5 text-[11px] text-foreground outline-none focus-visible:border-primary/60 focus-visible:ring-[3px] focus-visible:ring-primary/20"
           >
             <option value="semua">Semua program</option>
             {PROGRAM.map((item) => (

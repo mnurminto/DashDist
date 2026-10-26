@@ -4,9 +4,9 @@ export default function Loading() {
       <div className="h-14 border-b border-border/60 bg-card/20" />
 
       <div className="mx-auto max-w-[1400px] px-5 py-10 sm:px-8">
-        <div className="h-2.5 w-44 animate-pulse rounded-full bg-white/10 motion-reduce:animate-none" />
-        <div className="mt-4 h-9 w-72 max-w-full animate-pulse rounded-lg bg-white/10 motion-reduce:animate-none" />
-        <div className="mt-3 h-3 w-96 max-w-full animate-pulse rounded-full bg-white/5 motion-reduce:animate-none" />
+        <div className="h-2.5 w-44 animate-pulse rounded-full bg-foreground/10 motion-reduce:animate-none" />
+        <div className="mt-4 h-9 w-72 max-w-full animate-pulse rounded-lg bg-foreground/10 motion-reduce:animate-none" />
+        <div className="mt-3 h-3 w-96 max-w-full animate-pulse rounded-full bg-foreground/[0.07] motion-reduce:animate-none" />
 
         <div className="mt-8 h-24 animate-pulse rounded-2xl border border-border/50 bg-card/50 motion-reduce:animate-none" />
 

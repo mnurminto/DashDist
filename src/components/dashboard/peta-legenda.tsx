@@ -61,8 +61,8 @@ export function PetaLegenda({ kelas: daftarKelas, disorot, onSorot }: Props) {
                   className={cn(
                     "block h-4 w-9 rounded-[4px] border transition-all duration-150 focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:outline-none sm:w-11",
                     aktif
-                      ? "-translate-y-0.5 border-white/70 shadow-[0_0_10px_rgba(195,176,100,0.45)]"
-                      : "border-white/10 hover:-translate-y-0.5 hover:border-white/40",
+                      ? "-translate-y-0.5 border-foreground/70 shadow-[0_0_10px_rgba(125,109,36,0.35)]"
+                      : "border-border hover:-translate-y-0.5 hover:border-foreground/40",
                   )}
                   style={{ backgroundColor: item.warna }}
                 />

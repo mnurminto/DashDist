@@ -77,7 +77,7 @@ export function FormPengguna({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/25 p-4 backdrop-blur-sm"
       role="presentation"
       onClick={(e) => {
         if (e.target === e.currentTarget) onTutup();
@@ -160,7 +160,7 @@ export function FormPengguna({
               <select
                 value={peran}
                 onChange={(e) => setPeran(e.target.value as Peran)}
-                className="select-dark mt-1.5 h-9 w-full appearance-none rounded-lg border border-border bg-[#141415] pr-8 pl-3 text-xs text-foreground outline-none focus-visible:border-primary/60 focus-visible:ring-[3px] focus-visible:ring-primary/20"
+                className="select-dark mt-1.5 h-9 w-full appearance-none rounded-lg border border-border bg-card pr-8 pl-3 text-xs text-foreground outline-none focus-visible:border-primary/60 focus-visible:ring-[3px] focus-visible:ring-primary/20"
               >
                 <option value="staf">Staf</option>
                 <option value="pimpinan">Pimpinan</option>
@@ -174,7 +174,7 @@ export function FormPengguna({
               <select
                 value={aktif ? "aktif" : "nonaktif"}
                 onChange={(e) => setAktif(e.target.value === "aktif")}
-                className="select-dark mt-1.5 h-9 w-full appearance-none rounded-lg border border-border bg-[#141415] pr-8 pl-3 text-xs text-foreground outline-none focus-visible:border-primary/60 focus-visible:ring-[3px] focus-visible:ring-primary/20"
+                className="select-dark mt-1.5 h-9 w-full appearance-none rounded-lg border border-border bg-card pr-8 pl-3 text-xs text-foreground outline-none focus-visible:border-primary/60 focus-visible:ring-[3px] focus-visible:ring-primary/20"
               >
                 <option value="aktif">Aktif</option>
                 <option value="nonaktif">Nonaktif</option>

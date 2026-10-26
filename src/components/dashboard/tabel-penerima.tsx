@@ -52,7 +52,7 @@ export function TabelPenerima({ data }: Props) {
             value={cari}
             onChange={(e) => setCari(e.target.value)}
             placeholder="Cari nama penerima…"
-            className="h-9 w-full rounded-lg border border-border bg-[#141415] pr-3 pl-8 text-xs text-foreground outline-none placeholder:text-muted-foreground/70 focus-visible:border-primary/60 focus-visible:ring-[3px] focus-visible:ring-primary/20"
+            className="h-9 w-full rounded-lg border border-border bg-card pr-3 pl-8 text-xs text-foreground outline-none placeholder:text-muted-foreground/70 focus-visible:border-primary/60 focus-visible:ring-[3px] focus-visible:ring-primary/20"
           />
         </label>
 
@@ -61,7 +61,7 @@ export function TabelPenerima({ data }: Props) {
           <select
             value={kategori}
             onChange={(e) => setKategori(e.target.value)}
-            className="select-dark h-9 appearance-none rounded-lg border border-border bg-[#141415] pr-8 pl-3 text-xs text-foreground outline-none focus-visible:border-primary/60 focus-visible:ring-[3px] focus-visible:ring-primary/20"
+            className="select-dark h-9 appearance-none rounded-lg border border-border bg-card pr-8 pl-3 text-xs text-foreground outline-none focus-visible:border-primary/60 focus-visible:ring-[3px] focus-visible:ring-primary/20"
           >
             <option value={SEMUA}>Semua kategori</option>
             {kategoriTersedia.map((item) => (

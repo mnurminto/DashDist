@@ -85,9 +85,9 @@ export function PeringkatWilayah({
                     {formatRupiahRingkas(wilayah.dana)}
                   </span>
                 </div>
-                <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-white/5">
+                <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-foreground/[0.07]">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-[#5d6238] to-[#c3b064]"
+                    className="h-full rounded-full bg-gradient-to-r from-[#a89a52] to-[#7d6d24]"
                     style={{
                       width: `${Math.max((wilayah.dana / maksimum) * 100, 4)}%`,
                     }}

@@ -22,7 +22,7 @@ type Props = {
 };
 
 const SELECT_KELAS =
-  "select-dark h-9 w-full appearance-none rounded-lg border border-border bg-[#141415] pr-9 pl-3 text-sm text-foreground shadow-xs outline-none transition-colors hover:border-white/20 focus-visible:border-primary/60 focus-visible:ring-[3px] focus-visible:ring-primary/20";
+  "select-dark h-9 w-full appearance-none rounded-lg border border-border bg-card pr-9 pl-3 text-sm text-foreground shadow-xs outline-none transition-colors hover:border-foreground/20 focus-visible:border-primary/60 focus-visible:ring-[3px] focus-visible:ring-primary/20";
 
 /** Baris kontrol filter: wilayah, program, dan periode. */
 export function FilterBar({ nilai, onUbah, onReset, className }: Props) {

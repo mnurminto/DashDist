@@ -34,18 +34,18 @@
 
 :root {
   --radius: 1rem;
-  /* Palet gelap-hangat: charcoal, off-white, olive-gold, peach. */
-  --background: #101010;
-  --foreground: #efeeee;
-  --card: #171718;
-  --card-foreground: #efeeee;
-  --primary: #baab56;
-  --primary-foreground: #15150f;
-  --secondary: #242426;
-  --muted: #1d1d1f;
-  --muted-foreground: #8d8c8c;
-  --border: #2b2b2d;
-  --destructive: #e2705f;
+  /* Palet terang-hangat: kertas gading, tinta gelap, olive-gold, peach. */
+  --background: #f7f5ef;
+  --foreground: #1c1b16;
+  --card: #ffffff;
+  --card-foreground: #1c1b16;
+  --primary: #7d6d24;
+  --primary-foreground: #fdfcf6;
+  --secondary: #eeece3;
+  --muted: #f1efe7;
+  --muted-foreground: #6b6a61;
+  --border: #dedbd0;
+  --destructive: #b5462f;
 }
 
 .dark {
@@ -71,12 +71,12 @@
     background-image:
       radial-gradient(
         1100px 520px at 82% -12%,
-        rgba(186, 171, 86, 0.1),
+        rgba(186, 171, 86, 0.16),
         transparent 62%
       ),
       radial-gradient(
         900px 480px at 8% 108%,
-        rgba(226, 185, 169, 0.06),
+        rgba(226, 185, 169, 0.18),
         transparent 60%
       );
     background-repeat: no-repeat;
@@ -99,9 +99,9 @@
 }
 
 @layer components {
-  /* Panah dropdown untuk <select> gelap (pengganti arrow bawaan browser). */
+  /* Panah dropdown untuk <select> bergaya (pengganti arrow bawaan browser). */
   .select-dark {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238d8c8c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b6a61' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.7rem center;
     background-size: 16px;

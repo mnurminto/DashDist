@@ -7,12 +7,12 @@
  */
 
 export const TINGKAT_WARNA = [
-  "#22231d",
-  "#2f3324",
-  "#454b2c",
-  "#62663a",
-  "#8c8a4c",
-  "#c3b064",
+  "#ece7d3",
+  "#ded5b1",
+  "#ccbf8c",
+  "#b3a365",
+  "#978343",
+  "#75652a",
 ] as const;
 
 /** Persentil batas antar kelas. */

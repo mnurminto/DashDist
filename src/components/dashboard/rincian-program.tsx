@@ -44,9 +44,9 @@ export function RincianProgram({ data }: Props) {
                 {item.nama}
               </p>
               <div className="mt-1.5 flex items-center gap-2">
-                <div className="h-1 w-full max-w-xs overflow-hidden rounded-full bg-white/5">
+                <div className="h-1 w-full max-w-xs overflow-hidden rounded-full bg-foreground/[0.07]">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-[#5d6238] to-[#c3b064]"
+                    className="h-full rounded-full bg-gradient-to-r from-[#a89a52] to-[#7d6d24]"
                     style={{
                       width: `${Math.max((item.dana / maks) * 100, 3)}%`,
                     }}

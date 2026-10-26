@@ -119,7 +119,7 @@ export function SalinTautan({ kueri }: Props) {
             aria-label="Tautan dashboard dengan filter aktif"
             onFocus={(e) => e.currentTarget.select()}
             title={tautan}
-            className="h-8 min-w-0 flex-1 border-border/70 bg-[#141415] text-[11px]"
+            className="h-8 min-w-0 flex-1 border-border/70 bg-card text-[11px]"
           />
         </div>
       )}

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   ChartNoAxesCombined,
   Map,
+  MapPinned,
   Settings2,
   SlidersHorizontal,
   Users,
@@ -20,6 +21,7 @@ import { cn } from "cn";
 
 const RAIL = [
   { href: "/", label: "Peta sebaran", ikon: Map },
+  { href: "/lacak", label: "Lacak bantuan", ikon: MapPinned },
   { href: "/grafik", label: "Grafik bantuan", ikon: ChartNoAxesCombined },
   { href: "/#filter", label: "Filter", ikon: SlidersHorizontal },
   { href: "/#wilayah", label: "Wilayah", ikon: Users },
@@ -32,6 +34,7 @@ const RAIL_STAF = [
 const NAV = [
   { href: "/#ringkasan", label: "Ringkasan" },
   { href: "/", label: "Peta" },
+  { href: "/lacak", label: "Lacak" },
   { href: "/grafik", label: "Grafik" },
   { href: "/#filter", label: "Filter" },
 ] as const;

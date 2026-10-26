@@ -46,9 +46,11 @@ export function RincianProgram({ data }: Props) {
               <div className="mt-1.5 flex items-center gap-2">
                 <div className="h-1 w-full max-w-xs overflow-hidden rounded-full bg-foreground/[0.07]">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-[#a89a52] to-[#7d6d24]"
+                    className="h-full rounded-full"
                     style={{
                       width: `${Math.max((item.dana / maks) * 100, 3)}%`,
+                      backgroundImage:
+                        "linear-gradient(90deg, var(--grafik-area), var(--grafik-garis))",
                     }}
                   />
                 </div>

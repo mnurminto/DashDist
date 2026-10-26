@@ -11,11 +11,20 @@ export const metadata: Metadata = {
   description: siteConfig.description,
 };
 
+/**
+ * Terapkan tema tersimpan sebelum halaman dilukis, supaya tidak ada kedipan
+ * terang saat pengguna memilih mode gelap.
+ */
+const SKRIP_TEMA = `(function(){try{var t=localStorage.getItem("baznas.tema");if(t==="gelap"){document.documentElement.classList.add("dark");document.documentElement.style.colorScheme="dark";}}catch(e){}})();`;
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="id">
+    <html lang="id" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: SKRIP_TEMA }} />
+      </head>
       <body>
         <Providers>
           <a

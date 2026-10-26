@@ -205,15 +205,15 @@ function Sparkline({ nilai, label }: { nilai: number[]; label: string[] }) {
     >
       <defs>
         <linearGradient id="tren-dana" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#a89a52" stopOpacity="0.5" />
-          <stop offset="100%" stopColor="#a89a52" stopOpacity="0" />
+          <stop offset="0%" stopColor="var(--grafik-area)" stopOpacity="0.5" />
+          <stop offset="100%" stopColor="var(--grafik-area)" stopOpacity="0" />
         </linearGradient>
       </defs>
       <path d={area} fill="url(#tren-dana)" />
       <path
         d={garis}
         fill="none"
-        stroke="#8a7a2e"
+        stroke="var(--grafik-garis)"
         strokeWidth={1.6}
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -224,7 +224,7 @@ function Sparkline({ nilai, label }: { nilai: number[]; label: string[] }) {
           cx={x}
           cy={y}
           r={i === titik.length - 1 ? 2.2 : 1.5}
-          fill="#7d6d24"
+          fill="var(--grafik-titik)"
         />
       ))}
     </svg>

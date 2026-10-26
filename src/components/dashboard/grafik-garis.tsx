@@ -87,8 +87,16 @@ export function GrafikGaris({
       >
         <defs>
           <linearGradient id="garis-area" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#c3b064" stopOpacity="0.35" />
-            <stop offset="100%" stopColor="#c3b064" stopOpacity="0" />
+            <stop
+              offset="0%"
+              stopColor="var(--grafik-area)"
+              stopOpacity="0.35"
+            />
+            <stop
+              offset="100%"
+              stopColor="var(--grafik-area)"
+              stopOpacity="0"
+            />
           </linearGradient>
         </defs>
 
@@ -101,7 +109,7 @@ export function GrafikGaris({
                 x2={LEBAR - PAD.kanan}
                 y1={y}
                 y2={y}
-                stroke="rgba(0,0,0,0.08)"
+                stroke="var(--grafik-grid)"
                 strokeWidth={1}
               />
               <text
@@ -109,7 +117,7 @@ export function GrafikGaris({
                 y={y + 3}
                 textAnchor="end"
                 fontSize={11}
-                fill="#8d8c8c"
+                fill="var(--grafik-sumbu)"
               >
                 {formatRupiahRingkas(maks * (1 - rasio))}
               </text>
@@ -122,7 +130,7 @@ export function GrafikGaris({
           <path
             d={garis}
             fill="none"
-            stroke="#8a7a2e"
+            stroke="var(--grafik-garis)"
             strokeWidth={2}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -139,8 +147,8 @@ export function GrafikGaris({
                 cx={posisiX(i)}
                 cy={posisiY(titik.nilai)}
                 r={aktif === i ? 4 : 2.5}
-                fill="#7d6d24"
-                stroke="#ffffff"
+                fill="var(--grafik-titik)"
+                stroke="var(--card)"
                 strokeWidth={1.5}
               />
             )}
@@ -152,7 +160,7 @@ export function GrafikGaris({
                   i === 0 ? "start" : i === data.length - 1 ? "end" : "middle"
                 }
                 fontSize={11}
-                fill="#8d8c8c"
+                fill="var(--grafik-sumbu)"
               >
                 {titik.label}
               </text>

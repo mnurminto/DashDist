@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { Brand } from "@/components/brand";
+import { TombolTema } from "@/components/dashboard/tombol-tema";
 import { getSession } from "@/lib/session";
 import { siteConfig } from "@/config/site";
 
@@ -24,6 +25,7 @@ export default async function AuthLayout({
       <div className="relative">
         <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6 sm:px-10">
           <Brand />
+          <TombolTema />
         </header>
 
         <main

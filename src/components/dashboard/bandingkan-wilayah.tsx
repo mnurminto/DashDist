@@ -89,8 +89,8 @@ export function BandingkanWilayah({ data, danaWilayah, rataRata }: Props) {
                 className={cn(
                   "h-full rounded-full",
                   item.aktif
-                    ? "bg-gradient-to-r from-[#7d6d24] to-[#c3b064]"
-                    : "bg-gradient-to-r from-[#a89a52] to-[#7d6d24]",
+                    ? "bg-[linear-gradient(90deg,var(--grafik-garis),var(--primary))]"
+                    : "bg-[linear-gradient(90deg,var(--grafik-area),var(--grafik-garis))]",
                 )}
                 style={{
                   width: `${Math.max((item.dana / maks) * 100, 3)}%`,

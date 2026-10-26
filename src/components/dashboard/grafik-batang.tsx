@@ -64,9 +64,11 @@ export function GrafikBatang({
               title={`${item.label}: ${format(item.nilai)}`}
             >
               <div
-                className="h-full rounded-full bg-gradient-to-r from-[#a89a52] to-[#7d6d24]"
+                className="h-full rounded-full"
                 style={{
                   width: `${Math.max((item.nilai / maks) * 100, 3)}%`,
+                  backgroundImage:
+                    "linear-gradient(90deg, var(--grafik-area), var(--grafik-garis))",
                 }}
               />
             </div>

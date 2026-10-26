@@ -87,9 +87,11 @@ export function PeringkatWilayah({
                 </div>
                 <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-foreground/[0.07]">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-[#a89a52] to-[#7d6d24]"
+                    className="h-full rounded-full"
                     style={{
                       width: `${Math.max((wilayah.dana / maksimum) * 100, 4)}%`,
+                      backgroundImage:
+                        "linear-gradient(90deg, var(--grafik-area), var(--grafik-garis))",
                     }}
                   />
                 </div>

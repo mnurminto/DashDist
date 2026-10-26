@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { TERAKHIR_DIPERBARUI } from "@/lib/dashboard/mock-data";
 import { WaktuPembaruan } from "@/components/dashboard/waktu-pembaruan";
 import { NotifikasiPembaruan } from "@/components/dashboard/notifikasi-pembaruan";
+import { TombolTema } from "@/components/dashboard/tombol-tema";
 import { useSesiTiruan } from "@/lib/dashboard/use-sesi";
 import { hapusSesi } from "@/lib/dashboard/auth-tiruan";
 import { cn } from "cn";
@@ -138,6 +139,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
                 waktu={TERAKHIR_DIPERBARUI}
                 className="hidden sm:flex"
               />
+              <TombolTema />
               <NotifikasiPembaruan />
               {sesi ? (
                 <>

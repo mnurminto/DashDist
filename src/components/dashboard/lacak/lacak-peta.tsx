@@ -54,7 +54,7 @@ export function LacakPeta({ kelompok, aktif, onPilih, className }: Props) {
           y={0}
           width={GEO.viewBox.width}
           height={GEO.viewBox.height}
-          fill="#f2f0e8"
+          fill="var(--peta-latar)"
         />
 
         {/* Batas kecamatan sebagai latar */}
@@ -62,8 +62,8 @@ export function LacakPeta({ kelompok, aktif, onPilih, className }: Props) {
           <path
             key={wilayah.code}
             d={wilayah.path}
-            fill="#e6e2d4"
-            stroke="#cfcabc"
+            fill="var(--peta-wilayah)"
+            stroke="var(--peta-wilayah-batas)"
             strokeWidth={1}
             className="transition-colors"
           />
@@ -135,7 +135,7 @@ export function LacakPeta({ kelompok, aktif, onPilih, className }: Props) {
                 r={r}
                 fill={warna}
                 fillOpacity={0.95}
-                stroke={terpilih ? "#1c1b16" : "#ffffff"}
+                stroke={terpilih ? "var(--foreground)" : "#ffffff"}
                 strokeWidth={terpilih ? 2.5 : 1.5}
               />
               <text
@@ -155,7 +155,7 @@ export function LacakPeta({ kelompok, aktif, onPilih, className }: Props) {
       </svg>
 
       {/* Inset Kepulauan Seribu */}
-      <div className="absolute top-3 right-3 hidden rounded-lg border border-border bg-[#e9e4d6] p-1.5 sm:block">
+      <div className="absolute top-3 right-3 hidden rounded-lg border border-border bg-[var(--seribu-latar)] p-1.5 sm:block">
         <p className="mb-1 text-[9px] tracking-[0.1em] text-muted-foreground uppercase">
           Kep. Seribu
         </p>
@@ -169,8 +169,8 @@ export function LacakPeta({ kelompok, aktif, onPilih, className }: Props) {
             <path
               key={wilayah.code}
               d={wilayah.path}
-              fill="#d3cab2"
-              stroke="#a99d80"
+              fill="var(--seribu-pulau)"
+              stroke="var(--seribu-batas)"
               strokeWidth={2}
             />
           ))}
@@ -199,7 +199,7 @@ export function LacakPeta({ kelompok, aktif, onPilih, className }: Props) {
                   cy={wilayah.pusat.y}
                   r={16}
                   fill={warna}
-                  stroke={terpilih ? "#1c1b16" : "#ffffff"}
+                  stroke={terpilih ? "var(--foreground)" : "#ffffff"}
                   strokeWidth={2}
                 />
                 <text

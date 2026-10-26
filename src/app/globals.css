@@ -46,6 +46,30 @@
   --muted-foreground: #6b6a61;
   --border: #dedbd0;
   --destructive: #b5462f;
+
+  /* Palet khusus peta & grafik, supaya ikut berubah saat tema diganti. */
+  --peta-latar: #f0eee6;
+  --peta-garis: rgba(28, 27, 22, 0.06);
+  --peta-glow: rgba(195, 176, 100, 0.14);
+  --peta-batas: #ffffff;
+  --peta-label: #4a483f;
+  --peta-halo: #f7f5ef;
+  --peta-wilayah: #e6e2d4;
+  --peta-wilayah-batas: #cfcabc;
+  --seribu-latar: #e9e4d6;
+  --seribu-pulau: #d3cab2;
+  --seribu-batas: #a99d80;
+  --grafik-garis: #8a7a2e;
+  --grafik-titik: #7d6d24;
+  --grafik-area: #a89a52;
+  --grafik-grid: rgba(28, 27, 22, 0.08);
+  --grafik-sumbu: #6b6a61;
+  --skala-1: #ece7d3;
+  --skala-2: #ded5b1;
+  --skala-3: #ccbf8c;
+  --skala-4: #b3a365;
+  --skala-5: #978343;
+  --skala-6: #75652a;
 }
 
 .dark {
@@ -60,11 +84,40 @@
   --muted-foreground: #8d8c8c;
   --border: #2b2b2d;
   --destructive: #e2705f;
+
+  --peta-latar: #0c0c0c;
+  --peta-garis: rgba(255, 255, 255, 0.05);
+  --peta-glow: rgba(195, 176, 100, 0.16);
+  --peta-batas: #0d0d0d;
+  --peta-label: #d9d7ce;
+  --peta-halo: #101010;
+  --peta-wilayah: #23241d;
+  --peta-wilayah-batas: #34352c;
+  --seribu-latar: #0c0c0c;
+  --seribu-pulau: #23241d;
+  --seribu-batas: #34352c;
+  --grafik-garis: #d9c77c;
+  --grafik-titik: #e9dfae;
+  --grafik-area: #c3b064;
+  --grafik-grid: rgba(255, 255, 255, 0.07);
+  --grafik-sumbu: #8d8c8c;
+  --skala-1: #22231d;
+  --skala-2: #2f3324;
+  --skala-3: #454b2c;
+  --skala-4: #62663a;
+  --skala-5: #8c8a4c;
+  --skala-6: #c3b064;
 }
 
 @layer base {
   * {
     @apply border-border;
+  }
+  :root {
+    color-scheme: light;
+  }
+  .dark {
+    color-scheme: dark;
   }
   body {
     @apply bg-background text-foreground font-sans antialiased;
@@ -81,6 +134,19 @@
       );
     background-repeat: no-repeat;
     background-attachment: fixed;
+  }
+  .dark body {
+    background-image:
+      radial-gradient(
+        1100px 520px at 82% -12%,
+        rgba(186, 171, 86, 0.1),
+        transparent 62%
+      ),
+      radial-gradient(
+        900px 480px at 8% 108%,
+        rgba(226, 185, 169, 0.06),
+        transparent 60%
+      );
   }
   button,
   a,
